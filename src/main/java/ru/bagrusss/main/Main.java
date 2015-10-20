@@ -5,12 +5,16 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import ru.bagrusss.helpers.DBHelper;
+import ru.bagrusss.helpers.DBIntarface;
 import ru.bagrusss.servlets.forum.*;
 import ru.bagrusss.servlets.post.*;
 import ru.bagrusss.servlets.root.ClearServlet;
 import ru.bagrusss.servlets.root.StatusServlet;
 import ru.bagrusss.servlets.thread.*;
 import ru.bagrusss.servlets.user.*;
+
+import java.sql.SQLException;
 
 /**
  * Created by vladislav on 19.10.15.
@@ -81,6 +85,19 @@ public class Main {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        //test();
     }
 
+    static boolean test() {
+        DBIntarface hlp = DBHelper.getInstance();
+        boolean res=false;
+        try {
+            res = hlp.execute("show tables;");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println(res);
+        }
+        return res;
+    }
 }

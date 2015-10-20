@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ru.bagrusss.ru.bagrusss.main.Main</mainClass>
+                            <mainClass>ru.bagrusss.main.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -46,7 +46,6 @@
             <artifactId>jetty-webapp</artifactId>
             <version>${org.eclipse.jetty.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
