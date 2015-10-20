@@ -7,5 +7,5 @@ import ru.bagrusss.servlets.BaseServlet;
  */
 
 public class UUpdateProfile extends BaseServlet {
-    public static final String URL = BaseServlet.BASE_URL + "/user/updateProfile";
+    public static final String URL = BaseServlet.BASE_URL + "/user/updateProfile/";
 }

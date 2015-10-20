@@ -20,6 +20,12 @@ public class BaseServlet extends HttpServlet {
     protected static final int CODE_USER_ALREADY_EXISTS=5;
 
     protected static final String MESSAGE_OK="OK";
+    protected static final String MESSAGE_NOT_FOUND="запрашиваемый объект не найден";
+    protected static final String MESSAGE_INVALID_REQUEST="невалидный запрос";
+    protected static final String MESSAGE_INCORRECT_REQUEST="некорректный запрос";
+    protected static final String MESSAGE_UNKNOWN_ERROR="неизвестная ошибка";
+    protected static final String MESSAGE_USER_ALREADY_EXISTS="такой юзер уже существует";
+
 
     protected static final String BASE_URL = "/db/api";
     protected DBIntarface mHelper = DBHelper.getInstance();

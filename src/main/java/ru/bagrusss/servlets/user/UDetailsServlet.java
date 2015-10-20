@@ -6,5 +6,5 @@ import ru.bagrusss.servlets.BaseServlet;
  * Created by vladislav on 20.10.15.
  */
 public class UDetailsServlet extends BaseServlet {
-    public static final String URL = BaseServlet.BASE_URL + "/user/details";
+    public static final String URL = BaseServlet.BASE_URL + "/user/details/";
 }

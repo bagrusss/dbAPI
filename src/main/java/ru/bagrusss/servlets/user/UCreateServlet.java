@@ -7,6 +7,6 @@ import ru.bagrusss.servlets.BaseServlet;
  */
 
 public class UCreateServlet extends BaseServlet {
-    public static final String URL = BaseServlet.BASE_URL + "/user/create";
+    public static final String URL = BaseServlet.BASE_URL + "/user/create/";
 
 }

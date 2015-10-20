@@ -7,5 +7,5 @@ import ru.bagrusss.servlets.BaseServlet;
  */
 
 public class FDetailsServlet extends BaseServlet {
-    public static final String URL = BaseServlet.BASE_URL + "/forum/details";
+    public static final String URL = BaseServlet.BASE_URL + "/forum/details/";
 }

@@ -6,5 +6,5 @@ import ru.bagrusss.servlets.BaseServlet;
  * Created by vladislav on 19.10.15.
  */
 public class PCreateServlet extends BaseServlet {
-    public static final String URL = BaseServlet.BASE_URL + "/post/create";
+    public static final String URL = BaseServlet.BASE_URL + "/post/create/";
 }

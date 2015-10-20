@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 
 public class StatusServlet extends BaseServlet {
-    public static final String URL = BaseServlet.BASE_URL + "/status";
+    public static final String URL = BaseServlet.BASE_URL + "/status/";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

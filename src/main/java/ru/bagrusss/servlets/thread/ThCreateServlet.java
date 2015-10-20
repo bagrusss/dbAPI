@@ -7,5 +7,5 @@ import ru.bagrusss.servlets.BaseServlet;
  */
 
 public class ThCreateServlet extends BaseServlet {
-    public static final String URL = BaseServlet.BASE_URL + "/thread/create";
+    public static final String URL = BaseServlet.BASE_URL + "/thread/create/";
 }
