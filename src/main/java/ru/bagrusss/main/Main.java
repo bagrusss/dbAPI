@@ -5,8 +5,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import ru.bagrusss.helpers.DBHelper;
-import ru.bagrusss.helpers.DBIntarface;
 import ru.bagrusss.servlets.forum.*;
 import ru.bagrusss.servlets.post.*;
 import ru.bagrusss.servlets.root.ClearServlet;
@@ -14,24 +12,21 @@ import ru.bagrusss.servlets.root.StatusServlet;
 import ru.bagrusss.servlets.thread.*;
 import ru.bagrusss.servlets.user.*;
 
-import java.sql.SQLException;
-
 /**
  * Created by vladislav on 19.10.15.
  */
 
 public class Main {
 
-    public static final int PORT = 5000;
+    public static final int PORT = 28087; //28087
 
     public static void main(String[] args) {
         Server server = new Server(PORT);
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-        //root
+
         contextHandler.addServlet(new ServletHolder(new ClearServlet()), ClearServlet.URL);
         contextHandler.addServlet(new ServletHolder(new StatusServlet()), StatusServlet.URL);
 
-        //User
         contextHandler.addServlet(new ServletHolder(new UCreateServlet()), UCreateServlet.URL);
         contextHandler.addServlet(new ServletHolder(new UDetailsServlet()), UDetailsServlet.URL);
         contextHandler.addServlet(new ServletHolder(new UFollow()), UFollow.URL);
@@ -41,14 +36,12 @@ public class Main {
         contextHandler.addServlet(new ServletHolder(new UUnfollow()), UUnfollow.URL);
         contextHandler.addServlet(new ServletHolder(new UUpdateProfile()), UUpdateProfile.URL);
 
-        //Forum
         contextHandler.addServlet(new ServletHolder(new FCreateServlet()), FCreateServlet.URL);
         contextHandler.addServlet(new ServletHolder(new FDetailsServlet()), FDetailsServlet.URL);
         contextHandler.addServlet(new ServletHolder(new FListPostServlet()), FListPostServlet.URL);
         contextHandler.addServlet(new ServletHolder(new FListThreadsServlet()), FListThreadsServlet.URL);
         contextHandler.addServlet(new ServletHolder(new FListUserServlet()), FListUserServlet.URL);
 
-        //Thread
         contextHandler.addServlet(new ServletHolder(new ThCloseServlet()), ThCloseServlet.URL);
         contextHandler.addServlet(new ServletHolder(new ThCreateServlet()), ThCreateServlet.URL);
         contextHandler.addServlet(new ServletHolder(new ThDetailsServlet()), ThDetailsServlet.URL);
@@ -62,7 +55,6 @@ public class Main {
         contextHandler.addServlet(new ServletHolder(new ThUpdateServlet()), ThUpdateServlet.URL);
         contextHandler.addServlet(new ServletHolder(new ThVoteServlet()), ThVoteServlet.URL);
 
-        //Post
         contextHandler.addServlet(new ServletHolder(new PCreateServlet()), PCreateServlet.URL);
         contextHandler.addServlet(new ServletHolder(new PDetailsServlet()), PDetailsServlet.URL);
         contextHandler.addServlet(new ServletHolder(new PListServlet()), PListServlet.URL);
@@ -73,8 +65,8 @@ public class Main {
 
         HandlerList handlerList = new HandlerList();
         handlerList.setHandlers(new Handler[]{contextHandler});
-
         server.setHandler(handlerList);
+
         try {
             server.start();
         } catch (Exception e) {
@@ -85,19 +77,6 @@ public class Main {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //test();
     }
 
-    static boolean test() {
-        DBIntarface hlp = DBHelper.getInstance();
-        boolean res=false;
-        try {
-            res = hlp.execute("show tables;");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            System.out.println(res);
-        }
-        return res;
-    }
 }
