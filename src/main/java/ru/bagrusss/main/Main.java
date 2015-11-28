@@ -18,14 +18,14 @@ import ru.bagrusss.servlets.user.*;
 
 public class Main {
 
-    public static final int PORT = 28087; //28087
+    public static final int PORT = 5000; //28087
 
     public static void main(String[] args) {
         Server server = new Server(PORT);
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 
         contextHandler.addServlet(new ServletHolder(new ClearServlet()), ClearServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new StatusServlet()), StatusServlet.URL);
+        contextHandler.addServlet(new ServletHolder(new StatusServlet()), StatusServlet.URL+ '*');
 
         contextHandler.addServlet(new ServletHolder(new UCreateServlet()), UCreateServlet.URL);
         contextHandler.addServlet(new ServletHolder(new UDetailsServlet()), UDetailsServlet.URL);
@@ -66,7 +66,6 @@ public class Main {
         HandlerList handlerList = new HandlerList();
         handlerList.setHandlers(new Handler[]{contextHandler});
         server.setHandler(handlerList);
-
         try {
             server.start();
         } catch (Exception e) {
@@ -77,6 +76,26 @@ public class Main {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
     }
+    /*
+    public static class UrlParserHelper {
+
+        @NotNull
+        private static final String REGEXP_STR = "park.mail.ru/blog/topic/([^/]+)(/)?";
+
+        @NotNull
+        private final Pattern pattern = Pattern.compile(REGEXP_STR);
+
+        @Nullable
+        public String parse(@NotNull String url) {
+            final Matcher matcher = pattern.matcher(url);
+            if (matcher.find())
+                return matcher.group(1);
+            else
+                return null;
+        }
+    }*/
+
 
 }

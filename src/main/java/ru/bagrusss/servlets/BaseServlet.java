@@ -1,10 +1,9 @@
 package ru.bagrusss.servlets;
 
 import ru.bagrusss.helpers.DBHelper;
-import ru.bagrusss.helpers.DBIntarface;
+import ru.bagrusss.helpers.Helper;
 
 import javax.servlet.http.HttpServlet;
-import java.sql.ResultSet;
 
 /**
  * Created by vladislav on 19.10.15.
@@ -28,6 +27,5 @@ public class BaseServlet extends HttpServlet {
     protected static final String MESSAGE_USER_ALREADY_EXISTS="такой юзер уже существует";
 
     protected static final String BASE_URL = "/db/api";
-    protected DBIntarface mHelper = DBHelper.getInstance();
-    protected ResultSet mResultSet;
+    protected final Helper mHelper = DBHelper.getInstance();
 }

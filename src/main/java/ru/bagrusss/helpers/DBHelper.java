@@ -1,67 +1,94 @@
 package ru.bagrusss.helpers;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.jetbrains.annotations.NotNull;
+
+import java.sql.*;
+import java.util.Map;
 
 /**
- * Created by vladislav on 20.10.15.
+ * Created by vladislav on 19.10.15.
  */
 
-public class DBHelper implements DBIntarface {
+public final class DBHelper implements Helper {
 
     private static final String DB_HOST = "jdbc:mysql://localhost:3306/tp_db";
     private static final String DB_USER = "tp_user";
     private static final String DB_PASS = "tp_user2015";
-    private Connection mConnection;
+    private static final int MAX_OPEN_PREPARED_STATEMENTS = 100;
+    private static DBHelper s_dbHelper;
+    private final BasicDataSource mBasicDataSource;
 
-    private static DBHelper s_instance;
+    private DBHelper() {
+        mBasicDataSource = new BasicDataSource();
+        mBasicDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        mBasicDataSource.setUsername(DB_USER);
+        mBasicDataSource.setPassword(DB_PASS);
+        mBasicDataSource.setUrl(DB_HOST);
+
+        mBasicDataSource.setMinIdle(4);
+        mBasicDataSource.setMaxIdle(10);
+        mBasicDataSource.setMaxOpenPreparedStatements(MAX_OPEN_PREPARED_STATEMENTS);
+    }
 
     public static DBHelper getInstance() {
-        DBHelper localInstance = s_instance;
+        DBHelper localInstance = s_dbHelper;
         if (localInstance == null) {
             synchronized (DBHelper.class) {
-                localInstance = s_instance;
-                if (localInstance == null) s_instance = localInstance = new DBHelper();
+                localInstance = s_dbHelper;
+                if (localInstance == null)
+                    s_dbHelper = localInstance = new DBHelper();
             }
         }
         return localInstance;
     }
 
     @Override
-    public boolean testDB() {
-        DBIntarface hlp = DBHelper.getInstance();
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            Statement statement = hlp.connectToDB();
-            if (statement != null)
-                statement.close();
-            hlp.closeConnection();
-            return true;
-        } catch (ClassNotFoundException | SQLException e) {
+    public Connection getConnection() throws SQLException {
+        return mBasicDataSource.getConnection();
+    }
+
+    @Override
+    public void runQuery(@NotNull Connection connection, String sql, ResultHandlet resultHandlet) throws SQLException {
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            resultHandlet.handle(resultSet);
+        } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            connection.close();
         }
-        return false;
-    }
-
-    /**
-     * Firstly you must close returned statement!<br>
-     * Seconly you must call closeConnection() method!
-     *
-     * @return Statement
-     * @throws SQLException
-     */
-    @Override
-    public Statement connectToDB() throws SQLException {
-        mConnection = DriverManager.getConnection(DB_HOST, DB_USER, DB_PASS);
-        return mConnection.createStatement();
     }
 
     @Override
-    public void closeConnection() throws SQLException {
-        if (mConnection != null)
-            mConnection.close();
+    public void runPreparedQuery(@NotNull Connection connection, String sql,
+                                 Map<Integer, Object> params, ResultHandlet result) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            for (Integer i : params.keySet()) {
+                preparedStatement.setObject(i, params.get(i));
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            result.handle(resultSet);
+            resultSet.close();
+        } finally {
+            connection.close();
+        }
     }
 
+    @Override
+    public int runUpdate(@NotNull Connection connection, String sql) throws SQLException {
+        int updated = 0;
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(sql);
+            updated = statement.getUpdateCount();
+        } finally {
+            connection.close();
+        }
+        return updated;
+    }
+
+    @Override
+    public void runPreparedUpdate(@NotNull Connection connection, String sql, Map<Integer, String> params) {
+
+    }
 }
