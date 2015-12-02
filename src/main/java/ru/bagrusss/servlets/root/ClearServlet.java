@@ -106,10 +106,9 @@ public class ClearServlet extends BaseServlet {
             e.printStackTrace();
         }
         JsonObject rsp = new JsonObject();
+        resp.setStatus(HttpServletResponse.SC_OK);
         rsp.addProperty("code", CODE_OK);
         rsp.addProperty("response", MESSAGE_OK);
-
-        resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().println(rsp.toString());
     }
 }

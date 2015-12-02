@@ -30,4 +30,5 @@ public class BaseServlet extends HttpServlet {
     protected static final String BASE_URL = "/db/api";
     protected final Helper mHelper = DBHelper.getInstance();
     protected final Gson mGson = new Gson();
+    public static final String DEFAULT_ENCODING="UTF-8";
 }
