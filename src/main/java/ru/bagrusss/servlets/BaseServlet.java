@@ -1,5 +1,6 @@
 package ru.bagrusss.servlets;
 
+import com.google.gson.Gson;
 import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Helper;
 
@@ -28,4 +29,5 @@ public class BaseServlet extends HttpServlet {
 
     protected static final String BASE_URL = "/db/api";
     protected final Helper mHelper = DBHelper.getInstance();
+    protected final Gson mGson = new Gson();
 }

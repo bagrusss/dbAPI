@@ -1,17 +1,15 @@
 package ru.bagrusss.servlets.root;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import ru.bagrusss.helpers.ResultHandlet;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Created by vladislav on 19.10.15.
@@ -29,19 +27,16 @@ public class StatusServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setStatus(HttpServletResponse.SC_OK);
         req.getPathInfo();
-        JSONObject res = new JSONObject();
+        JsonObject res = new JsonObject();
         try {
             mHelper.runQuery(mHelper.getConnection(), sql, (rs) -> {
-                try {
-                    JSONObject states = new JSONObject();
-                    if (rs.next())
-                        for (byte i = 0; i < 4; ++i)
-                            states.put(mNames[i], rs.getInt(1 + i));
-                    res.put("code", CODE_OK);
-                    res.put("response", states);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                JsonObject states = new JsonObject();
+                if (rs.next())
+                    for (byte i = 0; i < 4; ++i) {
+                        states.addProperty(mNames[i], rs.getInt(1 + i));
+                    }
+                res.addProperty("code", CODE_OK);
+                res.add("response", states);
             });
             resp.getWriter().println(res.toString());
         } catch (SQLException e) {

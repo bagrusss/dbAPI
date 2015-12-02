@@ -27,42 +27,41 @@ public class Main {
         contextHandler.addServlet(new ServletHolder(new ClearServlet()), ClearServlet.URL);
         contextHandler.addServlet(new ServletHolder(new StatusServlet()), StatusServlet.URL+ '*');
 
-        contextHandler.addServlet(new ServletHolder(new UCreateServlet()), UCreateServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new UDetailsServlet()), UDetailsServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new UFollow()), UFollow.URL);
-        contextHandler.addServlet(new ServletHolder(new UListFollowers()), UListFollowers.URL);
-        contextHandler.addServlet(new ServletHolder(new UListFollowing()), UListFollowing.URL);
-        contextHandler.addServlet(new ServletHolder(new UListPosts()), UListPosts.URL);
-        contextHandler.addServlet(new ServletHolder(new UUnfollow()), UUnfollow.URL);
-        contextHandler.addServlet(new ServletHolder(new UUpdateProfile()), UUpdateProfile.URL);
+        contextHandler.addServlet(new ServletHolder(new UserCreate()), UserCreate.URL);
+        contextHandler.addServlet(new ServletHolder(new UserDetails()), UserDetails.URL);
+        contextHandler.addServlet(new ServletHolder(new UserFollow()), UserFollow.URL);
+        contextHandler.addServlet(new ServletHolder(new UserListFollowers()), UserListFollowers.URL);
+        contextHandler.addServlet(new ServletHolder(new UserListFollowing()), UserListFollowing.URL);
+        contextHandler.addServlet(new ServletHolder(new UserListPosts()), UserListPosts.URL);
+        contextHandler.addServlet(new ServletHolder(new UserUnFollow()), UserUnFollow.URL);
+        contextHandler.addServlet(new ServletHolder(new UserUpdateProfile()), UserUpdateProfile.URL);
 
-        contextHandler.addServlet(new ServletHolder(new FCreateServlet()), FCreateServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new FDetailsServlet()), FDetailsServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new FListPostServlet()), FListPostServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new FListThreadsServlet()), FListThreadsServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new FListUserServlet()), FListUserServlet.URL);
+        contextHandler.addServlet(new ServletHolder(new ForumCreate()), ForumCreate.URL);
+        contextHandler.addServlet(new ServletHolder(new ForumDetailsServlet()), ForumDetailsServlet.URL);
+        contextHandler.addServlet(new ServletHolder(new ForumListPost()), ForumListPost.URL);
+        contextHandler.addServlet(new ServletHolder(new ForumListThreads()), ForumListThreads.URL);
+        contextHandler.addServlet(new ServletHolder(new ForumListUser()), ForumListUser.URL);
 
-        contextHandler.addServlet(new ServletHolder(new ThCloseServlet()), ThCloseServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThCreateServlet()), ThCreateServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThDetailsServlet()), ThDetailsServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThListPostsServlet()), ThListPostsServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThListServlet()), ThListServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThOpenServlet()), ThOpenServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThRemoveServlet()), ThRemoveServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThRestorServlet()), ThRestorServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThSubscrabeServlet()), ThSubscrabeServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThUnSubscrabeServlet()), ThUnSubscrabeServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThUpdateServlet()), ThUpdateServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new ThVoteServlet()), ThVoteServlet.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadClose()), ThreadClose.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadCreate()), ThreadCreate.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadDetails()), ThreadDetails.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadListPosts()), ThreadListPosts.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadList()), ThreadList.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadOpenServlet()), ThreadOpenServlet.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadRemove()), ThreadRemove.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadRestor()), ThreadRestor.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadSubscrabe()), ThreadSubscrabe.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadUnSubscrabe()), ThreadUnSubscrabe.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadUpdate()), ThreadUpdate.URL);
+        contextHandler.addServlet(new ServletHolder(new ThreadVote()), ThreadVote.URL);
 
-        contextHandler.addServlet(new ServletHolder(new PCreateServlet()), PCreateServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new PDetailsServlet()), PDetailsServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new PListServlet()), PListServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new PRemoveServlet()), PRemoveServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new PRestoreServlet()), PRestoreServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new PUpdateServlet()), PUpdateServlet.URL);
-        contextHandler.addServlet(new ServletHolder(new PVoteServlet()), PVoteServlet.URL);
-
+        contextHandler.addServlet(new ServletHolder(new PostCreate()), PostCreate.URL);
+        contextHandler.addServlet(new ServletHolder(new PostDetails()), PostDetails.URL);
+        contextHandler.addServlet(new ServletHolder(new PostList()), PostList.URL);
+        contextHandler.addServlet(new ServletHolder(new PostRemove()), PostRemove.URL);
+        contextHandler.addServlet(new ServletHolder(new PostRestore()), PostRestore.URL);
+        contextHandler.addServlet(new ServletHolder(new PostUpdate()), PostUpdate.URL);
+        contextHandler.addServlet(new ServletHolder(new PostVote()), PostVote.URL);
         HandlerList handlerList = new HandlerList();
         handlerList.setHandlers(new Handler[]{contextHandler});
         server.setHandler(handlerList);
@@ -76,7 +75,6 @@ public class Main {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
     }
     /*
     public static class UrlParserHelper {
@@ -96,6 +94,4 @@ public class Main {
                 return null;
         }
     }*/
-
-
 }

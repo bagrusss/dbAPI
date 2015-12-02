@@ -4,7 +4,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Created by vladislav on 19.10.15.
@@ -12,12 +12,17 @@ import java.util.Map;
 
 public final class DBHelper implements Helper {
 
-    private static final String DB_HOST = "jdbc:mysql://localhost:3306/tp_db";
+    private static final String DB_HOST = "jdbc:mysql://localhost:3306/tp_db?characterEncoding=utf8";
     private static final String DB_USER = "tp_user";
     private static final String DB_PASS = "tp_user2015";
-    private static final int MAX_OPEN_PREPARED_STATEMENTS = 100;
-    private static DBHelper s_dbHelper;
+
+    private static final int MAX_OPEN_PREPARED_STATEMENTS = 120;
+    private static DBHelper mDBHelper;
     private final BasicDataSource mBasicDataSource;
+
+    private static final int MIN_CONNECTIONS = 4;
+    private static final int MAX_CONNECTIONS = 10;
+
 
     private DBHelper() {
         mBasicDataSource = new BasicDataSource();
@@ -26,18 +31,18 @@ public final class DBHelper implements Helper {
         mBasicDataSource.setPassword(DB_PASS);
         mBasicDataSource.setUrl(DB_HOST);
 
-        mBasicDataSource.setMinIdle(4);
-        mBasicDataSource.setMaxIdle(10);
+        mBasicDataSource.setMinIdle(MIN_CONNECTIONS);
+        mBasicDataSource.setMaxIdle(MAX_CONNECTIONS);
         mBasicDataSource.setMaxOpenPreparedStatements(MAX_OPEN_PREPARED_STATEMENTS);
     }
 
     public static DBHelper getInstance() {
-        DBHelper localInstance = s_dbHelper;
+        DBHelper localInstance = mDBHelper;
         if (localInstance == null) {
             synchronized (DBHelper.class) {
-                localInstance = s_dbHelper;
+                localInstance = mDBHelper;
                 if (localInstance == null)
-                    s_dbHelper = localInstance = new DBHelper();
+                    mDBHelper = localInstance = new DBHelper();
             }
         }
         return localInstance;
@@ -62,10 +67,11 @@ public final class DBHelper implements Helper {
 
     @Override
     public void runPreparedQuery(@NotNull Connection connection, String sql,
-                                 Map<Integer, Object> params, ResultHandlet result) throws SQLException {
+                                 List<?> params, ResultHandlet result) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            for (Integer i : params.keySet()) {
-                preparedStatement.setObject(i, params.get(i));
+            int i = 1;
+            for (Object par : params) {
+                preparedStatement.setObject(i++, par);
             }
             ResultSet resultSet = preparedStatement.executeQuery();
             result.handle(resultSet);
@@ -88,7 +94,18 @@ public final class DBHelper implements Helper {
     }
 
     @Override
-    public void runPreparedUpdate(@NotNull Connection connection, String sql, Map<Integer, String> params) {
-
+    public int runPreparedUpdate(@NotNull Connection connection, String sql, List<?> params) throws SQLException {
+        int res = 0;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            int i = 1;
+            for (Object par : params) {
+                preparedStatement.setObject(i++, par);
+            }
+            res = preparedStatement.executeUpdate();
+        } finally {
+            connection.close();
+        }
+        return res;
     }
+
 }

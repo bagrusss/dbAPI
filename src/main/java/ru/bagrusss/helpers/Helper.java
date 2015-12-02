@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,7 +13,8 @@ import java.util.Map;
 
 public interface Helper {
 
-    String[] TABLES = new String[]{" User ", " Thread ", " Post ", " Forum ", " Followers ", " Subscriptions "};
+    String[] TABLES = new String[]{" `User` ", " `Thread` ", " `Post` ",
+            " `Forum` ", " `Followers` ", " `Subscriptions` "};
 
     String TABLE_USER = TABLES[0];
     String TABLE_THREAD = TABLES[1];
@@ -25,9 +27,9 @@ public interface Helper {
 
     void runQuery(@NotNull Connection connection, String sql, ResultHandlet resultHandlet) throws SQLException;
 
-    void runPreparedQuery(@NotNull Connection connection, String sql, Map<Integer, Object> params, ResultHandlet resultHandlet) throws SQLException;
+    void runPreparedQuery(@NotNull Connection connection, String sql, List<?> params, ResultHandlet resultHandlet) throws SQLException;
 
     int runUpdate(@NotNull Connection connection, String sql) throws SQLException;
 
-    void runPreparedUpdate(@NotNull Connection connection, String sql, Map<Integer, String> params) throws SQLException;
+    int runPreparedUpdate(@NotNull Connection connection, String sql, List<?> params) throws SQLException;
 }
