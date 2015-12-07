@@ -54,7 +54,7 @@ public final class DBHelper implements Helper {
     }
 
     @Override
-    public void runQuery(@NotNull Connection connection, String sql, ResultHandlet resultHandlet) throws SQLException {
+    public void runQuery(@NotNull Connection connection, String sql, ResultHandler resultHandlet) throws SQLException {
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             resultHandlet.handle(resultSet);
@@ -67,7 +67,7 @@ public final class DBHelper implements Helper {
 
     @Override
     public void runPreparedQuery(@NotNull Connection connection, String sql,
-                                 List<?> params, ResultHandlet result) throws SQLException {
+                                 List<?> params, ResultHandler result) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             int i = 1;
             for (Object par : params) {

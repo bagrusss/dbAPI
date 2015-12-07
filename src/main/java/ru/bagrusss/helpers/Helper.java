@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by vladislav on 20.10.15.
@@ -25,9 +24,9 @@ public interface Helper {
 
     Connection getConnection() throws SQLException;
 
-    void runQuery(@NotNull Connection connection, String sql, ResultHandlet resultHandlet) throws SQLException;
+    void runQuery(@NotNull Connection connection, String sql, ResultHandler resultHandlet) throws SQLException;
 
-    void runPreparedQuery(@NotNull Connection connection, String sql, List<?> params, ResultHandlet resultHandlet) throws SQLException;
+    void runPreparedQuery(@NotNull Connection connection, String sql, List<?> params, ResultHandler resultHandlet) throws SQLException;
 
     int runUpdate(@NotNull Connection connection, String sql) throws SQLException;
 
