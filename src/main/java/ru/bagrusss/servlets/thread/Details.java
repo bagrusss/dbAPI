@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Created by vladislav on 19.10.15.
+ * Created by vladislav
  */
 public class Details extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/thread/details/";

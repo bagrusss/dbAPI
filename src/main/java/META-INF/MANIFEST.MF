@@ -1,9 +1,3 @@
 Manifest-Version: 1.0
-Class-Path: json-20090211.jar jetty-xml-9.2.0.M1.jar jetty-security-9.
- 2.0.M1.jar javax.servlet-api-3.1.0.jar jetty-servlet-9.2.0.M1.jar ann
- otations-5.1.jar commons-dbcp-1.4.jar jetty-server-9.2.0.M1.jar jetty
- -util-9.2.0.M1.jar jetty-http-9.2.0.M1.jar jetty-webapp-9.2.0.M1.jar 
- mysql-connector-java-5.1.6.jar commons-pool-1.5.4.jar jetty-io-9.2.0.
- M1.jar
 Main-Class: ru.bagrusss.main.Main
 

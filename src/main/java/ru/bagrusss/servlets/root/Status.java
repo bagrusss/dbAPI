@@ -3,6 +3,7 @@ package ru.bagrusss.servlets.root;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -27,18 +28,15 @@ public class Status extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setStatus(HttpServletResponse.SC_OK);
         req.getPathInfo();
-        JsonObject res = new JsonObject();
+        JsonObject states = new JsonObject();
         try {
             mHelper.runQuery(mHelper.getConnection(), sql, (rs) -> {
-                JsonObject states = new JsonObject();
                 if (rs.next())
                     for (byte i = 0; i < 4; ++i) {
                         states.addProperty(mNames[i], rs.getInt(1 + i));
                     }
-                res.addProperty("code", CODE_OK);
-                res.add("response", states);
             });
-            resp.getWriter().println(res.toString());
+            Errors.correct(resp.getWriter(), states);
         } catch (SQLException e) {
             e.printStackTrace();
         }

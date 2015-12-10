@@ -1,6 +1,7 @@
 package ru.bagrusss.servlets.forum;
 
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by vladislav.
+ * Created by vladislav
  */
 
 public class Create extends BaseServlet {
@@ -24,6 +25,7 @@ public class Create extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        resp.setCharacterEncoding(DEFAULT_ENCODING);
 
         StringBuilder sqlBuilder = new StringBuilder();
         List<Object> sqlParams = new ArrayList<>(3); //память, но без магии в потока
@@ -51,7 +53,7 @@ public class Create extends BaseServlet {
         try {
             mHelper.runPreparedQuery(mHelper.getConnection(), sqlBuilder.toString(), sqlParams, rs -> {
                 if (rs.next())
-                    result.addProperty("id", rs.getInt("id"));
+                    result.addProperty(ID, rs.getInt(ID));
             });
         } catch (SQLException e) {
             e.printStackTrace();
@@ -60,11 +62,9 @@ public class Create extends BaseServlet {
         result.addProperty("short_name", shortname);
         result.addProperty("name", name);
         result.addProperty("user", user);
-        JsonObject respone = new JsonObject();
-        respone.addProperty("code", CODE_OK);
-        respone.add("response", result);
+
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.setCharacterEncoding(DEFAULT_ENCODING);
-        resp.getWriter().write(respone.toString());
+        Errors.correct(resp.getWriter(), result);
+
     }
 }

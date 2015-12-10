@@ -31,4 +31,8 @@ public interface Helper {
     int runUpdate(@NotNull Connection connection, String sql) throws SQLException;
 
     int runPreparedUpdate(@NotNull Connection connection, String sql, List<?> params) throws SQLException;
+
+    long insertAndGetID(@NotNull Connection connection, String sql) throws SQLException;
+
+    long preparedInsertAndGetID(@NotNull Connection connection, String sql, List<?> params) throws SQLException;
 }

@@ -1,5 +1,6 @@
 package ru.bagrusss.servlets.post;
 
+import com.google.gson.JsonObject;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -15,6 +16,9 @@ public class Create extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setCharacterEncoding(DEFAULT_ENCODING);
+        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+
         /*
             INSERT IGNORE INTO `Post` (`thread_id`,`message`, `user_email`, `forum_short_name`, `date`
                 `parent`,`isApproved`, `isHighlighted`, `isEdited`, `isSpam`, `isDeleted`)

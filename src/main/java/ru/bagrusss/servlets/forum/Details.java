@@ -16,9 +16,11 @@ public class Details extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         /*
-            SELECT f.*, u.* FROM `Forum` f JOIN `User` u
-              ON f.user_email=u.email WHERE f.short_name = ?;
+            SELECT f.id f_id, f.name f_name, f.short_name f_sh, f.user_email f_user,  u.*
+            FROM `Forum` f JOIN `User` u
+            ON f.user_email=u.email WHERE f.short_name = ?;
          */
         resp.setStatus(HttpServletResponse.SC_OK);
     }

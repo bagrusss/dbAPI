@@ -2,6 +2,7 @@ package ru.bagrusss.servlets.user;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
@@ -23,8 +24,7 @@ public class Details extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-        String email = req.getParameter(USER);/*params.get(USER).getAsString();*/
-
+        String email = req.getParameter(USER);
 
         /* SELECT * FROM `User` WHERE `email` = ?;
 
@@ -41,6 +41,7 @@ public class Details extends BaseServlet {
         List<Object> sqlParams = new ArrayList<>(1);
         sqlParams.add(email);
         JsonObject result = new JsonObject();
+        final boolean[] success = {false};
         try {
             mHelper.runPreparedQuery(mHelper.getConnection(), sqlBuilder.toString(), sqlParams, rs -> {
                 if (rs.next()) {
@@ -50,44 +51,35 @@ public class Details extends BaseServlet {
                     result.addProperty(EMAIL, rs.getString(EMAIL));
                     result.addProperty(IS_ANNONIMOUS, rs.getBoolean(IS_ANNONIMOUS));
                     result.addProperty(USERNAME, rs.getString(USERNAME));
+                    success[0] = true;
                 }
             });
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        sqlParams.clear();
-        sqlParams.add(USER);
+        if (!success[0]) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            Errors.notFound(resp.getWriter());
+            return;
+        }
         JsonArray followers = null;
         JsonArray following = null;
         JsonArray subscriptions = null;
         try {
             followers = getListByEmail(Helper.TABLE_FOLLOWERS, FOLLOWING_EMAIL, FOLLOWER_EMAIL, sqlParams);
             following = getListByEmail(Helper.TABLE_FOLLOWERS, FOLLOWER_EMAIL, FOLLOWING_EMAIL, sqlParams);
-            subscriptions = getListByEmail(Helper.TABLE_SUBSCRIPTIONS, THREAD_ID, USER_EMAIL, sqlParams);
+            subscriptions = getSubscriptions(email);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         result.add(FOLLOWERS, followers);
         result.add(FOLLOWING, following);
         result.add(SUBSCTIPTIOS, subscriptions);
-        JsonObject response = new JsonObject();
-        response.addProperty("code", CODE_OK);
-        response.add("response", result);
-        resp.getWriter().write(response.toString());
-        sqlParams.clear();
+
+        resp.setStatus(HttpServletResponse.SC_OK);
+        Errors.correct(resp.getWriter(), result);
+
     }
 
-    JsonArray getListByEmail(String table, String what, String whereField, List<?> params) throws SQLException {
-        JsonArray res = new JsonArray();
-        StringBuilder sqlBuilder = new StringBuilder("SELECT ").append(what)
-                .append(" FROM ").append(table)
-                .append(" WHERE ").append(whereField).append(" = ?");
-        mHelper.runPreparedQuery(mHelper.getConnection(), sqlBuilder.toString(), params, rs -> {
-            while (rs.next()) {
-                res.add(rs.getString(what));
-            }
-        });
-        return res;
-    }
+
 }

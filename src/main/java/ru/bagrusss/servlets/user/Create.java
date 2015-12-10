@@ -1,6 +1,8 @@
 package ru.bagrusss.servlets.user;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -28,54 +30,32 @@ public class Create extends BaseServlet {
             SELECT * FROM `User` WHERE `email` = ?;
         */
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
-        JsonObject response = new JsonObject();
         List<Object> sqlParams = new ArrayList<>(5);
-        String email;
-        try {
-            sqlParams.add(email = params.get(EMAIL).getAsString());
-            sqlParams.add(params.get(USERNAME).getAsString());
-            sqlParams.add(params.get(ABOUT).getAsString());
-            sqlParams.add(params.get(NAME).getAsString());
-            sqlParams.add(params.has(IS_ANNONIMOUS) && params.get(IS_ANNONIMOUS).getAsBoolean());
-            /*String email = params.get(EMAIL).getAsString();
-            String username = params.get(USERNAME).getAsString();
-            String about = params.get(ABOUT).getAsString();
-            String name = params.get(NAME).getAsString();
-            Boolean isAnnonimous = params.has(IS_ANNONIMOUS) && params.get(IS_ANNONIMOUS).getAsBoolean();*/
 
-        } catch (UnsupportedOperationException e) {
-            //e.printStackTrace();
-            response.addProperty("code", CODE_INCORRECT_REQUEST);
-            response.addProperty("response", MESSAGE_INCORRECT_REQUEST);
-            resp.getWriter().write(response.toString());
-            resp.setStatus(HttpServletResponse.SC_OK);
-            return;
-        }
+        sqlParams.add(params.get(EMAIL).getAsString());
+        JsonElement elem = params.get(USERNAME);
+        sqlParams.add(elem.isJsonNull() ? null : elem.getAsString());
+        elem = params.get(ABOUT);
+        sqlParams.add(elem.isJsonNull() ? null : elem.getAsString());
+        elem = params.get(NAME);
+        sqlParams.add(elem.isJsonNull() ? null : elem.getAsString());
+        sqlParams.add(params.has(IS_ANNONIMOUS) && params.get(IS_ANNONIMOUS).getAsBoolean());
+
+        long id = 0;
         try {
-            StringBuilder sql = new StringBuilder("INSERT IGNORE INTO `User` (`email`, `username`, `about`, `name`, `isAnnonimous`) ")
-                    .append("VALUES (?, ?, ?, ?, ?);");
-            if (mHelper.runPreparedUpdate(mHelper.getConnection(), sql.toString(), sqlParams) == 0) {
+            String sql = "INSERT IGNORE INTO `User` (`email`, `username`, `about`, `name`, `isAnonymous`) VALUES (?, ?, ?, ?, ?);";
+            id = mHelper.preparedInsertAndGetID(mHelper.getConnection(), sql, sqlParams);
+            if (id == 0) {
                 resp.setStatus(HttpServletResponse.SC_OK);
-                response.addProperty("code", CODE_USER_ALREADY_EXISTS);
-                response.addProperty("response", MESSAGE_USER_ALREADY_EXISTS);
-                resp.getWriter().write(response.toString());
+                Errors.userAlreadyExists(resp.getWriter());
                 return;
             }
-            sql.setLength(0);
-            sqlParams.clear();
-            sqlParams.add(email);
-            sql.append(" SELECT * FROM `User` WHERE `email` = ?;");
-            mHelper.runPreparedQuery(mHelper.getConnection(), sql.toString(), sqlParams, rs -> {
-                if (rs.next()) {
-                    params.addProperty(ID, rs.getInt(ID));
-                }
-            });
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        response.addProperty("code", CODE_OK);
-        response.add("response", params);
-        resp.getWriter().write(response.toString());
+
+        params.addProperty(ID, id);
         resp.setStatus(HttpServletResponse.SC_OK);
+        Errors.correct(resp.getWriter(), params);
     }
 }

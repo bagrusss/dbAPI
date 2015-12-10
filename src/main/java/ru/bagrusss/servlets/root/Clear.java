@@ -1,6 +1,7 @@
 package ru.bagrusss.servlets.root;
 
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
@@ -33,7 +34,7 @@ public class Clear extends BaseServlet {
                     .append("`name` VARCHAR(50), ")
                     .append("`about` BLOB, ")
                     .append("`email` VARCHAR(50) NOT NULL, ")
-                    .append("`isAnnonimous` TINYINT(1) DEFAULT false,")
+                    .append("`isAnonymous` TINYINT(1) DEFAULT false,")
                     .append("PRIMARY KEY(`email`), ")
                     .append("UNIQUE INDEX `id_UNIQUE` (`id` ASC)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
@@ -103,8 +104,8 @@ public class Clear extends BaseServlet {
         }
         JsonObject rsp = new JsonObject();
         resp.setStatus(HttpServletResponse.SC_OK);
-        rsp.addProperty("code", CODE_OK);
-        rsp.addProperty("response", MESSAGE_OK);
+        rsp.addProperty("code", Errors.CODE_OK);
+        rsp.addProperty("response", Errors.MESSAGE_OK);
         resp.getWriter().println(rsp.toString());
     }
 }

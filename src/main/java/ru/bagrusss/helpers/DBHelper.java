@@ -108,4 +108,38 @@ public final class DBHelper implements Helper {
         return res;
     }
 
+    @Override
+    public long insertAndGetID(@NotNull Connection connection, String sql) throws SQLException {
+        long id = 0;
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(sql,Statement.RETURN_GENERATED_KEYS);
+            try (ResultSet res = statement.getGeneratedKeys()) {
+                if (res.next()) {
+                    id = res.getLong(1);
+                }
+            }
+        } finally {
+            connection.close();
+        }
+        return id;
+    }
+
+    @Override
+    public long preparedInsertAndGetID(@NotNull Connection connection, String sql, List<?> params) throws SQLException {
+        long id = 0;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            int i = 1;
+            for (Object par : params) {
+                preparedStatement.setObject(i++, par);
+            }
+            preparedStatement.executeUpdate();
+            try (ResultSet result = preparedStatement.getGeneratedKeys()) {
+                if (result.next())
+                    id = result.getLong(1);
+            }
+        } finally {
+            connection.close();
+        }
+        return id;
+    }
 }
