@@ -22,16 +22,12 @@ public class Remove extends BaseServlet {
         /*
             UPDATE `Thread` SET isDeleted = 1 WHERE id =?;
          */
-        long id = params.get("thread").getAsLong();
-        String sql = "UPDATE `Thread` SET isDeleted = 1 WHERE id = " + id;
-        JsonObject response = new JsonObject();
         try {
-            mHelper.runUpdate(mHelper.getConnection(), sql);
+            toggleThreadField(params.get("thread").getAsLong(), "isDeleted", true);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        response.addProperty("thread", id);
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), response);
+        Errors.correct(resp.getWriter(), params.toString());
     }
 }

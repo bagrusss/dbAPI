@@ -16,8 +16,9 @@ public class Restore extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         /*
-             UPDATE `Post` SET `isDeleted`=0 WHERE `id`=?;
+             UPDATE `Post` SET `isDeleted`= 0 WHERE `id`=?;
          */
+
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 }

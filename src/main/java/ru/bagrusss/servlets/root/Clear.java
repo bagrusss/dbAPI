@@ -56,7 +56,7 @@ public class Clear extends BaseServlet {
                     .append("`date` TIMESTAMP NULL,")
                     .append("`isClosed` TINYINT(1) DEFAULT false,")
                     .append("`isDeleted` TINYINT(1) DEFAULT false,")
-                    .append("`message` VARCHAR(255) NOT NULL,")
+                    .append("`message` BLOB NOT NULL,")
                     .append("`title` VARCHAR(100) NULL,")
                     .append("`slug` VARCHAR(100) NULL,")
                     .append("`likes` INT UNSIGNED NULL DEFAULT 0,")

@@ -58,8 +58,6 @@ public final class DBHelper implements Helper {
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             resultHandlet.handle(resultSet);
-        } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
             connection.close();
         }
@@ -112,7 +110,7 @@ public final class DBHelper implements Helper {
     public long insertAndGetID(@NotNull Connection connection, String sql) throws SQLException {
         long id = 0;
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sql,Statement.RETURN_GENERATED_KEYS);
+            statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
             try (ResultSet res = statement.getGeneratedKeys()) {
                 if (res.next()) {
                     id = res.getLong(1);

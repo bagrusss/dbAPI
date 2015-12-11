@@ -56,6 +56,6 @@ public class Create extends BaseServlet {
 
         params.addProperty(ID, id);
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), params);
+        Errors.correct(resp.getWriter(), params.toString());
     }
 }

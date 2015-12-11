@@ -35,7 +35,7 @@ public class Create extends BaseServlet {
         sqlBuilder.setLength(0);
         sqlBuilder.append("INSERT IGNORE INTO ").append(Helper.TABLE_FORUM)
                 .append("(`name`, `short_name`, `user_email`)")
-                .append(" VALUES (?,?,?);");
+                .append(" VALUES (?, ?, ?);");
         sqlParams.add(name);
         sqlParams.add(shortname);
         sqlParams.add(user);
@@ -64,7 +64,7 @@ public class Create extends BaseServlet {
         result.addProperty("user", user);
 
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), result);
+        Errors.correct(resp.getWriter(), result.toString());
 
     }
 }

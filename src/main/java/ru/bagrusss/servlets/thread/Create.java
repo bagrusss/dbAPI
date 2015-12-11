@@ -35,7 +35,6 @@ public class Create extends BaseServlet {
 
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         List<Object> sqlParams = new ArrayList<>(8);
-        String title;
         try {
             sqlParams.add(params.get("forum").getAsString());
             sqlParams.add(params.get("title").getAsString());
@@ -56,6 +55,6 @@ public class Create extends BaseServlet {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), params);
+        Errors.correct(resp.getWriter(), params.toString());
     }
 }

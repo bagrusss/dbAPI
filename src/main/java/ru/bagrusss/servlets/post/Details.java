@@ -15,8 +15,9 @@ public class Details extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         /*
-            SELECT *, likes-likes AS points FROM `Post` WHERE id =?;
+            SELECT *, likes-likes AS points FROM `Post` p WHERE p.id =?;
             SELECT * FROM `User` WHERE `email` = ?;
             SELECT * FROM `Forum` WHERE `short_name` = ?;
             SELECT *, likes-dislikes AS points FROM `Thread` WHERE `id` = ?

@@ -27,19 +27,12 @@ public class Close extends BaseServlet {
             UPDATE `Thread` SET isClosed = 1 WHERE id =?;
          */
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("UPDATE").append(Helper.TABLE_THREAD)
-                .append("SET `isClosed` = 1 WHERE id = ").append(params.get("thread").getAsBigInteger());
         try {
-            if (mHelper.runUpdate(mHelper.getConnection(), sqlBuilder.toString()) == 0) {
-                resp.setStatus(HttpServletResponse.SC_OK);
-                Errors.notFound(resp.getWriter());
-                return;
-            }
+            toggleThreadField(params.get("thread").getAsLong(),"isClosed", true);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), params);
+        Errors.correct(resp.getWriter(), params.toString());
     }
 }
