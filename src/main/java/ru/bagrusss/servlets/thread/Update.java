@@ -37,13 +37,11 @@ public class Update extends BaseServlet {
         try {
             String sql = "UPDATE `Thread` SET `message`=?, `slug`=? WHERE id =?";
             mHelper.runPreparedUpdate(mHelper.getConnection(), sql, sqlParams);
-            result = getForumDetails(id, null);
+            result = getThreadDetails(id, null);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        if (result != null) {
-            Errors.correct(resp.getWriter(), result.toString());
-        }
+        Errors.correct(resp.getWriter(), result);
     }
 }

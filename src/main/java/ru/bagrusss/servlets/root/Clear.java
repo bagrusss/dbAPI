@@ -74,6 +74,7 @@ public class Clear extends BaseServlet {
                     .append("`isApproved` TINYINT(1) DEFAULT false,")
                     .append("`isDeleted` TINYINT(1) DEFAULT false,")
                     .append("`isEdited` TINYINT(1) DEFAULT false,")
+                    .append("`isHighlighted` TINYINT(1) DEFAULT false,")
                     .append("`isSpam` TINYINT(1) DEFAULT false,")
                     .append("`message` BLOB,")
                     .append("`likes` INT UNSIGNED DEFAULT 0,")

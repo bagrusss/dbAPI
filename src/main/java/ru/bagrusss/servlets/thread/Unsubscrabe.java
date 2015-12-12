@@ -37,6 +37,6 @@ public class Unsubscrabe extends BaseServlet {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), params.toString());
+        Errors.correct(resp.getWriter(), params);
     }
 }

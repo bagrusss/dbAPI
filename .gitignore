@@ -2,4 +2,5 @@ target/
 .idea/
 *.mwb*
 META-INF/
+*.jar
 

@@ -24,7 +24,7 @@ public class Details extends BaseServlet {
         String forum = req.getParameter("forum");
         /*
             SELECT * FROM `Forum` WHERE short_name = ?;
-            дальше user/details
+
          */
         StringBuilder sql = new StringBuilder("SELECT * FROM")
                 .append(Helper.TABLE_FORUM)
@@ -44,8 +44,7 @@ public class Details extends BaseServlet {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), result.toString());
+        Errors.correct(resp.getWriter(), result);
     }
 }

@@ -46,7 +46,7 @@ public class UpdateProfile extends BaseServlet {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), result.toString());
+        Errors.correct(resp.getWriter(), result);
     }
 
 }

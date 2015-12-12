@@ -34,5 +34,7 @@ public interface Helper {
 
     long insertAndGetID(@NotNull Connection connection, String sql) throws SQLException;
 
-    long preparedInsertAndGetID(@NotNull Connection connection, String sql, List<?> params) throws SQLException;
+    long preparedInsertAndGetKeys(@NotNull Connection connection, String sql, List<?> params) throws SQLException;
+
+    void preparedInsertAndGetKeys(@NotNull Connection connection, String sql, List<?> params, ResultHandler gk) throws SQLException;
 }

@@ -2,6 +2,7 @@ package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
+import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -26,11 +27,11 @@ public class Open extends BaseServlet {
 
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         try {
-            toggleThreadField(params.get("thread").getAsLong(),"isClosed", false);
+            toggleField(Helper.TABLE_THREAD, params.get("thread").getAsLong(),"isClosed", false);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), params.toString());
+        Errors.correct(resp.getWriter(), params);
     }
 }

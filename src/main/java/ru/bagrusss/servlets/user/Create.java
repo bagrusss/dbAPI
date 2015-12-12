@@ -44,7 +44,7 @@ public class Create extends BaseServlet {
         long id = 0;
         try {
             String sql = "INSERT IGNORE INTO `User` (`email`, `username`, `about`, `name`, `isAnonymous`) VALUES (?, ?, ?, ?, ?);";
-            id = mHelper.preparedInsertAndGetID(mHelper.getConnection(), sql, sqlParams);
+            id = mHelper.preparedInsertAndGetKeys(mHelper.getConnection(), sql, sqlParams);
             if (id == 0) {
                 resp.setStatus(HttpServletResponse.SC_OK);
                 Errors.userAlreadyExists(resp.getWriter());
@@ -56,6 +56,6 @@ public class Create extends BaseServlet {
 
         params.addProperty(ID, id);
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), params.toString());
+        Errors.correct(resp.getWriter(), params);
     }
 }

@@ -36,7 +36,7 @@ public class Status extends BaseServlet {
                         states.addProperty(mNames[i], rs.getInt(1 + i));
                     }
             });
-            Errors.correct(resp.getWriter(), states.toString());
+            Errors.correct(resp.getWriter(), states);
         } catch (SQLException e) {
             e.printStackTrace();
         }

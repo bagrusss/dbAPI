@@ -39,7 +39,7 @@ public class Unfollow extends BaseServlet {
         String email;
         sqlParams.add(email = params.get("followee").getAsString());
         sqlParams.add(params.get("follower").getAsString());
-        JsonObject result = null;
+        JsonObject res = null;
         try {
             StringBuilder sql = new StringBuilder("DELETE FROM")
                     .append(Helper.TABLE_FOLLOWERS).append("WHERE follower_email = ? AND following_email = ?");
@@ -48,14 +48,12 @@ public class Unfollow extends BaseServlet {
                 Errors.notFound(resp.getWriter());
                 return;
             }
-            result = getUserDetails(email, true);
+            res = getUserDetails(email, true);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        if (result != null) {
-            Errors.correct(resp.getWriter(), result.toString());
-        }
+        Errors.correct(resp.getWriter(), res);
     }
 
 }

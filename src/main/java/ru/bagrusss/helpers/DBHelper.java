@@ -123,7 +123,7 @@ public final class DBHelper implements Helper {
     }
 
     @Override
-    public long preparedInsertAndGetID(@NotNull Connection connection, String sql, List<?> params) throws SQLException {
+    public long preparedInsertAndGetKeys(@NotNull Connection connection, String sql, List<?> params) throws SQLException {
         long id = 0;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             int i = 1;
@@ -139,5 +139,21 @@ public final class DBHelper implements Helper {
             connection.close();
         }
         return id;
+    }
+
+    @Override
+    public void preparedInsertAndGetKeys(@NotNull Connection connection, String sql, List<?> params, ResultHandler gk) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            int i = 1;
+            for (Object par : params) {
+                preparedStatement.setObject(i++, par);
+            }
+            preparedStatement.executeUpdate();
+            try (ResultSet result = preparedStatement.getGeneratedKeys()) {
+                gk.handle(result);
+            }
+        } finally {
+            connection.close();
+        }
     }
 }

@@ -28,14 +28,14 @@ public class Create extends BaseServlet {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
 
         StringBuilder sqlBuilder = new StringBuilder();
-        List<Object> sqlParams = new ArrayList<>(3); //память, но без магии в потока
+        List<Object> sqlParams = new ArrayList<>(3);
         String name = params.get("name").getAsString();
         String shortname = params.get("short_name").getAsString();
         String user = params.get("user").getAsString();
         sqlBuilder.setLength(0);
         sqlBuilder.append("INSERT IGNORE INTO ").append(Helper.TABLE_FORUM)
                 .append("(`name`, `short_name`, `user_email`)")
-                .append(" VALUES (?, ?, ?);");
+                .append(" VALUES (?,?,?);");
         sqlParams.add(name);
         sqlParams.add(shortname);
         sqlParams.add(user);
@@ -53,7 +53,7 @@ public class Create extends BaseServlet {
         try {
             mHelper.runPreparedQuery(mHelper.getConnection(), sqlBuilder.toString(), sqlParams, rs -> {
                 if (rs.next())
-                    result.addProperty(ID, rs.getInt(ID));
+                    result.addProperty(ID, rs.getInt(1));
             });
         } catch (SQLException e) {
             e.printStackTrace();
@@ -64,7 +64,7 @@ public class Create extends BaseServlet {
         result.addProperty("user", user);
 
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), result.toString());
+        Errors.correct(resp.getWriter(), result);
 
     }
 }

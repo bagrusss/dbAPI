@@ -53,9 +53,7 @@ public class Follow extends BaseServlet {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        if (result != null) {
-            Errors.correct(resp.getWriter(), result.toString());
-        }
+        Errors.correct(resp.getWriter(), result);
 
 
     }
