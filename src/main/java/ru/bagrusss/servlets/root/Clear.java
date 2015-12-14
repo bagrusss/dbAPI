@@ -29,7 +29,7 @@ public class Clear extends BaseServlet {
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_USER)
-                    .append("(`id` INT(11) NOT NULL AUTO_INCREMENT, ")
+                    .append("(`id` INT NOT NULL AUTO_INCREMENT, ")
                     .append("`username` VARCHAR(50) DEFAULT NULL, ")
                     .append("`name` VARCHAR(50), ")
                     .append("`about` BLOB, ")
@@ -41,7 +41,7 @@ public class Clear extends BaseServlet {
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_FORUM)
-                    .append("(`id` INT(5) NOT NULL AUTO_INCREMENT,")
+                    .append("(`id` INT NOT NULL AUTO_INCREMENT,")
                     .append("`name` VARCHAR(100),")
                     .append("`short_name` VARCHAR(100) NOT NULL,")
                     .append("`user_email` VARCHAR(50) NOT NULL,")
@@ -52,7 +52,7 @@ public class Clear extends BaseServlet {
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_THREAD)
-                    .append("(`id` INT(10) NOT NULL AUTO_INCREMENT,")
+                    .append("(`id` INT NOT NULL AUTO_INCREMENT,")
                     .append("`date` TIMESTAMP NULL,")
                     .append("`isClosed` TINYINT(1) DEFAULT false,")
                     .append("`isDeleted` TINYINT(1) DEFAULT false,")
@@ -69,7 +69,7 @@ public class Clear extends BaseServlet {
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_POST)
-                    .append("(`id` INT(12) NOT NULL AUTO_INCREMENT,")
+                    .append("(`id` INT NOT NULL AUTO_INCREMENT,")
                     .append("`date` TIMESTAMP NULL,")
                     .append("`isApproved` TINYINT(1) DEFAULT false,")
                     .append("`isDeleted` TINYINT(1) DEFAULT false,")

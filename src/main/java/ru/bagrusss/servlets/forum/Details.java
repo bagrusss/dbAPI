@@ -35,7 +35,7 @@ public class Details extends BaseServlet {
         try {
             mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
                 if (rs.next()) {
-                    result.addProperty("id", rs.getInt("id"));
+                    result.addProperty("id", rs.getInt(1));
                     result.addProperty("short_name", forum);
                     result.addProperty("name", rs.getString("name"));
                     result.addProperty("user", rs.getString("user_email"));

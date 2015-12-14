@@ -33,7 +33,7 @@ public class Update extends BaseServlet {
         try {
             String sql = "UPDATE `Post` SET `message`=? WHERE id =?;";
             mHelper.runPreparedUpdate(mHelper.getConnection(), sql, sqlParams);
-            result = postDetails(id);
+            result = getPostDetails(id);
         } catch (SQLException e) {
             e.printStackTrace();
         }

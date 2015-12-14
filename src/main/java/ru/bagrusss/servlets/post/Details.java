@@ -30,7 +30,7 @@ public class Details extends BaseServlet {
         long id = Long.valueOf(req.getParameter("post"));
         JsonObject result = null;
         try {
-            result = postDetails(id);
+            result = getPostDetails(id);
         } catch (SQLException e) {
             e.printStackTrace();
         }

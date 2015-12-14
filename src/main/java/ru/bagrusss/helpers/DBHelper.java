@@ -34,6 +34,11 @@ public final class DBHelper implements Helper {
         mBasicDataSource.setMinIdle(MIN_CONNECTIONS);
         mBasicDataSource.setMaxIdle(MAX_CONNECTIONS);
         mBasicDataSource.setMaxOpenPreparedStatements(MAX_OPEN_PREPARED_STATEMENTS);
+        try {
+            this.runUpdate(getConnection(),"SET sql_mode=\"NO_UNSIGNED_SUBTRACTION\";");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static DBHelper getInstance() {

@@ -30,11 +30,7 @@ public class Create extends BaseServlet {
                 `parent`,`isApproved`, `isHighlighted`, `isEdited`, `isSpam`, `isDeleted`)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
          */
-/*        StringBuilder sql = new StringBuilder("INSERT IGNORE INTO")
-                .append(Helper.TABLE_POST)
-                .append("(`thread_id`,`message`, `user_email`, `forum_short_name`, `date`, ")
-                .append("`parent`,`isApproved`, `isHighlighted`, `isEdited`, `isSpam`, `isDeleted`)")
-                .append(" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");*/
+
         StringBuilder sql = new StringBuilder("INSERT IGNORE INTO")
                 .append(Helper.TABLE_POST)
                 .append("(`thread_id`,`message`, `user_email`, `forum_short_name`, `date`, ");

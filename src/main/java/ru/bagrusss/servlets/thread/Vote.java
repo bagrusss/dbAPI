@@ -28,29 +28,15 @@ public class Vote extends BaseServlet {
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         long id = params.get("thread").getAsLong();
         byte vote = params.get("vote").getAsByte();
-        StringBuilder sql = new StringBuilder("UPDATE")
-                .append(Helper.TABLE_THREAD)
-                .append("SET ");
-        switch (vote) {
-            case 1:
-                sql.append("`likes`=`likes` ");
-                break;
-            case -1:
-                sql.append("`dislikes`=`dislikes` ");
-                break;
-            default:
-                resp.setStatus(HttpServletResponse.SC_OK);
-                Errors.incorrecRequest(resp.getWriter());
-                return;
-        }
-        sql.append("+1 WHERE `id`=").append(id);
+
         try {
-            mHelper.runUpdate(mHelper.getConnection(), sql.toString());
-            params = getThreadDetails(id, null);
+            params = this.vote(Helper.TABLE_THREAD, id, vote);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), params);
+        if (params != null) {
+            Errors.correct(resp.getWriter(), params);
+        }
     }
 }

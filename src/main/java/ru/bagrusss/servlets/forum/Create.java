@@ -35,36 +35,19 @@ public class Create extends BaseServlet {
         sqlBuilder.setLength(0);
         sqlBuilder.append("INSERT IGNORE INTO ").append(Helper.TABLE_FORUM)
                 .append("(`name`, `short_name`, `user_email`)")
-                .append(" VALUES (?,?,?);");
+                .append(" VALUES (?,?,?)");
         sqlParams.add(name);
         sqlParams.add(shortname);
         sqlParams.add(user);
+        long id = 0;
         try {
-            mHelper.runPreparedUpdate(mHelper.getConnection(), sqlBuilder.toString(), sqlParams);
+            id = mHelper.preparedInsertAndGetKeys(mHelper.getConnection(), sqlBuilder.toString(), sqlParams);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        sqlParams.clear();
-        sqlBuilder.setLength(0);
-        sqlBuilder.append("SELECT `id` FROM ").append(Helper.TABLE_FORUM)
-                .append("WHERE `short_name` = ?;");
-        JsonObject result = new JsonObject();
-        sqlParams.add(shortname);
-        try {
-            mHelper.runPreparedQuery(mHelper.getConnection(), sqlBuilder.toString(), sqlParams, rs -> {
-                if (rs.next())
-                    result.addProperty(ID, rs.getInt(1));
-            });
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        sqlParams.clear();
-        result.addProperty("short_name", shortname);
-        result.addProperty("name", name);
-        result.addProperty("user", user);
-
+        params.addProperty("id", id);
         resp.setStatus(HttpServletResponse.SC_OK);
-        Errors.correct(resp.getWriter(), result);
+        Errors.correct(resp.getWriter(), params);
 
     }
 }

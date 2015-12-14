@@ -15,6 +15,13 @@ public class ListThreads extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setCharacterEncoding(DEFAULT_ENCODING);
+        String forum = req.getParameter("forum");
+        StringBuilder sql = new StringBuilder("SELECT t.`id` tid, DATE_FORMAT(t.date, '%Y-%m-%d %H:%i:%s') tdate")
+                .append("t.isClosed tisCl, t.isDeleted tisDel, t.message tmess")
+                .append("t.title ttit, t.slug tsl, t.likes tl, t.dislikes tdl")
+                .append("t.forum_id tfid, t.forum tforum, t.user_email tuser ");
+
         /*
             SELECT *, `likes`-`dislikes` points FROM `Thread` WHERE `forum_short_name` = ?
 
@@ -22,7 +29,7 @@ public class ListThreads extends BaseServlet {
 
             SELECT *, t.`likes`-`dislikes` t_points FROM `Thread` t
             JOIN `User` u ON u.`email` = t.`user_email`
-            JOIN `Forum` f ON f.`short_name` = t.`forum` WHERE p.`forum_short_name` = ?
+            JOIN `Forum` f ON f.`short_name` = t.`forum` WHERE t.`forum_short_name` = ?
          */
         resp.setStatus(HttpServletResponse.SC_OK);
     }

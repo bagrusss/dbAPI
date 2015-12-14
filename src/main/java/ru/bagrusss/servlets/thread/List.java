@@ -1,7 +1,6 @@
 package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
@@ -30,13 +29,14 @@ public class List extends BaseServlet {
                 ORDER BY `date` LIMIT ?;
 
          */
-
         StringBuilder sql = new StringBuilder("SELECT t.*, t.likes-t.dislikes points, ")
-                .append("DATE_FORMAT(t.date, '%Y-%m-%d %H:%i:%s') ")
-                .append("dt, COUNT(p.id) posts FROM")
-                .append(Helper.TABLE_THREAD)
-                .append("t, ").append(Helper.TABLE_POST)
-                .append("p WHERE ");
+                .append("DATE_FORMAT(t.date, '%Y-%m-%d %H:%i:%s') dt,")
+                .append("COUNT(p.id) posts FROM")
+                .append(Helper.TABLE_THREAD).append("t ")
+                .append("INNER JOIN ")
+                .append(Helper.TABLE_POST).append("p ")
+                .append("ON t.id=p.thread_id ")
+                .append("WHERE ");
         String par = req.getParameter("user");
         if (par != null) {
             sql.append("t.`user_email`=\'")
@@ -45,7 +45,7 @@ public class List extends BaseServlet {
             sql.append("t.`forum`= \'")
                     .append(req.getParameter("forum"));
         }
-        sql.append("\' AND p.isDeleted = False ");
+        sql.append("\' AND p.isDeleted = 0 ");
         par = req.getParameter("since");
         if (par != null)
             sql.append(" AND t.`date` >= \'")
@@ -62,8 +62,8 @@ public class List extends BaseServlet {
         try {
             mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
                 while (rs.next()) {
-                    JsonObject curent = parseThread(rs);
-                    threads.add(curent);
+                    if (rs.getString("user_email") != null)
+                        threads.add(parseThread(rs, null));
                 }
             });
         } catch (SQLException e) {

@@ -44,7 +44,7 @@ public class BaseServlet extends HttpServlet {
     protected static final String FOLLOWER_EMAIL = "follower_email";
     protected static final String FOLLOWING_EMAIL = "following_email";
 
-    protected Logger logger= Logger.getLogger(this.getClass().getName());
+    protected Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Nullable
     protected JsonObject getUserDetails(String email, boolean isFull) throws SQLException {
@@ -130,54 +130,23 @@ public class BaseServlet extends HttpServlet {
      * @return return item with id from current in ResultSet
      * @throws SQLException
      */
-    protected JsonObject parseThread(ResultSet rs) throws SQLException {
-        JsonObject reslult = new JsonObject();
-        reslult.addProperty("id", rs.getInt(1));
-        reslult.addProperty("date", rs.getString("dt"));
-        reslult.addProperty("likes", rs.getInt("likes"));
-        reslult.addProperty("dislikes", rs.getInt("dislikes"));
-        reslult.addProperty("points", rs.getInt("points"));
-        reslult.addProperty("message", rs.getString("message"));
-        reslult.addProperty("title", rs.getString("title"));
-        reslult.addProperty("slug", rs.getString("slug"));
-        reslult.addProperty("user", rs.getString("user_email"));
-        reslult.addProperty("forum", rs.getString("forum"));
-        reslult.addProperty("isDeleted", rs.getBoolean("isDeleted"));
-        reslult.addProperty("isClosed", rs.getBoolean("isClosed"));
-        reslult.addProperty("posts", rs.getLong("posts"));
-        return reslult;
-    }
-
-    protected JsonObject getThreadDetails(long id, @Nullable String[] related) throws SQLException {
-        StringBuilder sql = new StringBuilder("SELECT t.*, t.likes-t.dislikes points, ")
-                .append("DATE_FORMAT(t.date, '%Y-%m-%d %H:%i:%s') ")
-                .append("dt, COUNT(p.id) posts FROM")
-                .append(Helper.TABLE_THREAD)
-                .append("t ").append("INNER JOIN")
-                .append(Helper.TABLE_POST)
-                .append("p ON t.`id`=p.`thread_id`")
-                .append(" WHERE t.`id` = ").append(id)
-                .append(" AND p.isDeleted = 0");
-        //logger.log(Level.INFO, sql.toString());
-        JsonObject reslult = new JsonObject();
-        mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
-            if (rs.next()) {
-                reslult.addProperty("id", id);
-                reslult.addProperty("date", rs.getString("dt"));
-                reslult.addProperty("likes", rs.getInt("likes"));
-                reslult.addProperty("dislikes", rs.getInt("dislikes"));
-                reslult.addProperty("points", rs.getInt("points"));
-                reslult.addProperty("message", rs.getString("message"));
-                reslult.addProperty("title", rs.getString("title"));
-                reslult.addProperty("slug", rs.getString("slug"));
-                reslult.addProperty("user", rs.getString("user_email"));
-                reslult.addProperty("forum", rs.getString("forum"));
-                reslult.addProperty("isDeleted", rs.getBoolean("isDeleted"));
-                reslult.addProperty("isClosed", rs.getBoolean("isClosed"));
-                reslult.addProperty("posts", rs.getLong("posts"));
-            }
-        });
-        return reslult;
+    protected JsonObject parseThread(ResultSet rs, @Nullable JsonObject result) throws SQLException {
+        if (result == null)
+            result = new JsonObject();
+        result.addProperty("id", rs.getInt(1));
+        result.addProperty("date", rs.getString("dt"));
+        result.addProperty("likes", rs.getInt("likes"));
+        result.addProperty("dislikes", rs.getInt("dislikes"));
+        result.addProperty("points", rs.getInt("points"));
+        result.addProperty("message", rs.getString("message"));
+        result.addProperty("title", rs.getString("title"));
+        result.addProperty("slug", rs.getString("slug"));
+        result.addProperty("user", rs.getString("user_email"));
+        result.addProperty("forum", rs.getString("forum"));
+        result.addProperty("isDeleted", rs.getBoolean("isDeleted"));
+        result.addProperty("isClosed", rs.getBoolean("isClosed"));
+        result.addProperty("posts", rs.getLong("posts"));
+        return result;
     }
 
     protected boolean toggleField(String table, long id, String field, boolean value) throws SQLException {
@@ -189,10 +158,51 @@ public class BaseServlet extends HttpServlet {
         return mHelper.runUpdate(mHelper.getConnection(), sql.toString()) > 0;
     }
 
+    protected JsonObject getThreadDetails(long id, @Nullable String[] related) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT t.*, t.likes-CAST(t.dislikes AS SIGNED) points, ")
+                .append("DATE_FORMAT(t.date, '%Y-%m-%d %H:%i:%s') dt, ")
+                .append("COUNT(p.id) posts FROM")
+                .append(Helper.TABLE_THREAD)
+                .append("t ").append(" JOIN")
+                .append(Helper.TABLE_POST)
+                .append("p ON t.`id`=p.`thread_id`")
+                .append(" WHERE t.`id` = ").append(id)
+                .append(" AND p.isDeleted = 0");
+        JsonObject reslult = new JsonObject();
+        mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
+            if (rs.next()) {
+                parseThread(rs, reslult);
+            }
+        });
+        return reslult;
+    }
+
+    protected JsonObject parsePost(ResultSet rs, @Nullable JsonObject result) throws SQLException {
+        if (result == null)
+            result = new JsonObject();
+        result.addProperty("id", rs.getLong(1));
+        result.addProperty("isApproved", rs.getBoolean("isApproved"));
+        result.addProperty("isDeleted", rs.getBoolean("isDeleted"));
+        result.addProperty("isEdited", rs.getBoolean("isEdited"));
+        result.addProperty("isHighlighted", rs.getBoolean("isHighlighted"));
+        result.addProperty("isSpam", rs.getBoolean("isSpam"));
+        result.addProperty("message", rs.getString("message"));
+        result.addProperty("forum", rs.getString("forum_short_name"));
+        result.addProperty("date", rs.getString("pd"));
+        result.addProperty("user", rs.getString("user_email"));
+        result.addProperty("dislikes", rs.getLong("dislikes"));
+        result.addProperty("likes", rs.getLong("likes"));
+        result.addProperty("points", rs.getLong("points"));
+        long parent = rs.getLong("parent");
+        result.addProperty("parent", parent == 0 ? null : parent);
+        result.addProperty("thread", rs.getLong("thread_id"));
+        return result;
+    }
+
     @Nullable
-    protected JsonObject postDetails(long id) throws SQLException {
-        StringBuilder sql = new StringBuilder("SELECT *, likes-dislikes AS points, ")
-                .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') dt FROM")
+    protected JsonObject getPostDetails(long id) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
+                .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd FROM")
                 .append(Helper.TABLE_POST)
                 .append("WHERE `id`=")
                 .append(id);
@@ -200,25 +210,34 @@ public class BaseServlet extends HttpServlet {
         final boolean[] isFound = {false};
         mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
             if (rs.next()) {
-                result.addProperty("id", id);
-                result.addProperty("isApproved", rs.getBoolean("isApproved"));
-                result.addProperty("isDeleted", rs.getBoolean("isDeleted"));
-                result.addProperty("isEdited", rs.getBoolean("isEdited"));
-                result.addProperty("isHighlighted", rs.getBoolean("isHighlighted"));
-                result.addProperty("isSpam", rs.getBoolean("isSpam"));
-                result.addProperty("message", rs.getString("message"));
-                result.addProperty("forum", rs.getString("forum_short_name"));
-                result.addProperty("date", rs.getString("dt"));
-                result.addProperty("user", rs.getString("user_email"));
-                result.addProperty("dislikes", rs.getLong("dislikes"));
-                result.addProperty("likes", rs.getLong("likes"));
-                result.addProperty("points", rs.getLong("points"));
-                long parent = rs.getLong("parent");
-                result.addProperty("parent", parent == 0 ? null : parent);
-                result.addProperty("thread", rs.getLong("thread_id"));
+                parsePost(rs, result);
                 isFound[0] = true;
             }
         });
         return isFound[0] ? result : null;
+    }
+
+    @Nullable
+    protected JsonObject vote(String table, long id, byte value) throws SQLException {
+        StringBuilder sql = new StringBuilder("UPDATE")
+                .append(table)
+                .append("SET ");
+        switch (value) {
+            case 1:
+                sql.append("`likes`=`likes` ");
+                break;
+            case -1:
+                sql.append("`dislikes`=`dislikes` ");
+                break;
+            default:
+                return null;
+        }
+        sql.append("+1 WHERE `id`=").append(id);
+        mHelper.runUpdate(mHelper.getConnection(), sql.toString());
+        JsonObject result;
+        if (table.equals(Helper.TABLE_THREAD))
+            result = getThreadDetails(id, null);
+        else result = getPostDetails(id);
+        return result;
     }
 }

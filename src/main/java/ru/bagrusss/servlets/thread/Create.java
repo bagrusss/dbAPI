@@ -40,8 +40,7 @@ public class Create extends BaseServlet {
             sqlParams.add(params.get("title").getAsString());
             sqlParams.add(params.get("slug").getAsString());
             sqlParams.add(params.get("user").getAsString());
-            //TODO костыль
-            sqlParams.add(params.get("date").getAsString()+".001");
+            sqlParams.add(params.get("date").getAsString());
             sqlParams.add(params.get("message").getAsString());
             sqlParams.add(params.get("isClosed").getAsBoolean());
             sqlParams.add(params.has("isDeleted") && params.get("isDeleted").getAsBoolean());
