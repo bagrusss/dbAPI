@@ -17,7 +17,7 @@ public class ListThreads extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         String forum = req.getParameter("forum");
-        StringBuilder sql = new StringBuilder("SELECT t.`id` tid, DATE_FORMAT(t.date, '%Y-%m-%d %H:%i:%s') tdate")
+        StringBuilder select = new StringBuilder("SELECT t.`id` tid, DATE_FORMAT(t.date, '%Y-%m-%d %H:%i:%s') tdate")
                 .append("t.isClosed tisCl, t.isDeleted tisDel, t.message tmess")
                 .append("t.title ttit, t.slug tsl, t.likes tl, t.dislikes tdl")
                 .append("t.forum_id tfid, t.forum tforum, t.user_email tuser ");

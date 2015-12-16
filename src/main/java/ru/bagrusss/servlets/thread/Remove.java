@@ -24,7 +24,10 @@ public class Remove extends BaseServlet {
             UPDATE `Thread` SET isDeleted = 1 WHERE id =?;
          */
         try {
-            toggleField(Helper.TABLE_THREAD, params.get("thread").getAsLong(), "`isDeleted`", true);
+            long id = params.get("thread").getAsLong();
+            toggleField(Helper.TABLE_THREAD, id, "`isDeleted`", true);
+            String sql = "UPDATE `Post` SET isDeleted = 1 WHERE thread_id =" + id;
+            mHelper.runUpdate(mHelper.getConnection(), sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }

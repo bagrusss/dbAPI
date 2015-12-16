@@ -29,30 +29,25 @@ public class List extends BaseServlet {
                 ORDER BY `date` LIMIT ?;
 
          */
-        StringBuilder sql = new StringBuilder("SELECT t.*, t.likes-t.dislikes points, ")
-                .append("DATE_FORMAT(t.date, '%Y-%m-%d %H:%i:%s') dt,")
-                .append("COUNT(p.id) posts FROM")
-                .append(Helper.TABLE_THREAD).append("t ")
-                .append("INNER JOIN ")
-                .append(Helper.TABLE_POST).append("p ")
-                .append("ON t.id=p.thread_id ")
+        StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
+                .append("DATE_FORMAT(`date`, '%Y-%m-%d %H:%i:%s') dt FROM")
+                .append(Helper.TABLE_THREAD)
                 .append("WHERE ");
         String par = req.getParameter("user");
         if (par != null) {
-            sql.append("t.`user_email`=\'")
+            sql.append("`user_email`=\'")
                     .append(par);
         } else {
-            sql.append("t.`forum`= \'")
+            sql.append("`forum`= \'")
                     .append(req.getParameter("forum"));
         }
-        sql.append("\' AND p.isDeleted = 0 ");
         par = req.getParameter("since");
         if (par != null)
-            sql.append(" AND t.`date` >= \'")
+            sql.append("\' AND `date` >= \'")
                     .append(par).append('\'');
         par = req.getParameter("order");
         if (par != null)
-            sql.append(" ORDER BY t.`date` ")
+            sql.append(" ORDER BY `date` ")
                     .append(par);
         par = req.getParameter("limit");
         if (par != null)
@@ -62,8 +57,7 @@ public class List extends BaseServlet {
         try {
             mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
                 while (rs.next()) {
-                    if (rs.getString("user_email") != null)
-                        threads.add(parseThread(rs, null));
+                    threads.add(parseThread(rs, null));
                 }
             });
         } catch (SQLException e) {

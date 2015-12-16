@@ -9,7 +9,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Created by vladislav
@@ -20,12 +22,21 @@ public class Remove extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        //индекс по id, thread_id
         long id = params.get("post").getAsLong();
         /*
               UPDATE `Post` SET `isDeleted`=1 WHERE `id`=?;
          */
         try {
+            Connection connection = mHelper.getConnection();
             toggleField(Helper.TABLE_POST, id, "isDeleted", true);
+            String update = "UPDATE `Thread` SET `posts`=`posts`-1 WHERE `id`=";
+            mHelper.runQuery(connection, "SELECT `thread_id` FROM Post Where id=" + id, rs -> {
+                if (rs.next())
+                    try (Statement st = connection.createStatement()) {
+                        st.executeUpdate(update + rs.getLong(1));
+                    }
+            });
         } catch (SQLException e) {
             e.printStackTrace();
         }

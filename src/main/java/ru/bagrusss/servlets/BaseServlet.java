@@ -10,15 +10,11 @@ import ru.bagrusss.helpers.Helper;
 import javax.servlet.http.HttpServlet;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Created by vladislav
  */
-
 
 public class BaseServlet extends HttpServlet {
 
@@ -59,13 +55,12 @@ public class BaseServlet extends HttpServlet {
 
            */
         StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM ").append(Helper.TABLE_USER)
-                .append(" WHERE ").append("`email` = ?;");
-        List<Object> sqlParams = new ArrayList<>(1);
-        sqlParams.add(email);
+                .append(" WHERE ").append("`email` = \'");
+        sqlBuilder.append(email).append('\'');
         JsonObject result = new JsonObject();
         final boolean[] success = {false};
 
-        mHelper.runPreparedQuery(mHelper.getConnection(), sqlBuilder.toString(), sqlParams, rs -> {
+        mHelper.runQuery(mHelper.getConnection(), sqlBuilder.toString(), rs -> {
             if (rs.next()) {
                 result.addProperty(ABOUT, rs.getString(ABOUT));
                 result.addProperty(NAME, rs.getString(NAME));
@@ -84,8 +79,8 @@ public class BaseServlet extends HttpServlet {
             JsonArray following = null;
             JsonArray subscriptions = null;
             try {
-                followers = getListByEmail(Helper.TABLE_FOLLOWERS, FOLLOWING_EMAIL, FOLLOWER_EMAIL, sqlParams);
-                following = getListByEmail(Helper.TABLE_FOLLOWERS, FOLLOWER_EMAIL, FOLLOWING_EMAIL, sqlParams);
+                followers = getListByEmail(Helper.TABLE_FOLLOWERS, FOLLOWING_EMAIL, FOLLOWER_EMAIL, email);
+                following = getListByEmail(Helper.TABLE_FOLLOWERS, FOLLOWER_EMAIL, FOLLOWING_EMAIL, email);
                 subscriptions = getSubscriptions(email);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -98,12 +93,13 @@ public class BaseServlet extends HttpServlet {
     }
 
     //for /user/details
-    protected JsonArray getListByEmail(String table, String what, String whereField, List<?> params) throws SQLException {
+    protected JsonArray getListByEmail(String table, String what, String whereField, String email) throws SQLException {
         JsonArray res = new JsonArray();
         StringBuilder sqlBuilder = new StringBuilder("SELECT ").append(what)
                 .append(" FROM ").append(table)
-                .append(" WHERE ").append(whereField).append(" = ?");
-        mHelper.runPreparedQuery(mHelper.getConnection(), sqlBuilder.toString(), params, rs -> {
+                .append(" WHERE ").append(whereField).append(" = \'")
+                .append(email).append('\'');
+        mHelper.runQuery(mHelper.getConnection(), sqlBuilder.toString(), rs -> {
             while (rs.next()) {
                 res.add(rs.getString(1));
             }
@@ -149,25 +145,21 @@ public class BaseServlet extends HttpServlet {
         return result;
     }
 
-    protected boolean toggleField(String table, long id, String field, boolean value) throws SQLException {
+    protected long toggleField(String table, long id, String field, boolean value) throws SQLException {
         StringBuilder sql = new StringBuilder("UPDATE ")
                 .append(table)
                 .append("SET ").append(field)
                 .append(" = ").append(value)
                 .append(" WHERE id = ").append(id);
-        return mHelper.runUpdate(mHelper.getConnection(), sql.toString()) > 0;
+        return mHelper.updateAndGetID(mHelper.getConnection(), sql.toString());
     }
 
-    protected JsonObject getThreadDetails(long id, @Nullable String[] related) throws SQLException {
-        StringBuilder sql = new StringBuilder("SELECT t.*, t.likes-CAST(t.dislikes AS SIGNED) points, ")
-                .append("DATE_FORMAT(t.date, '%Y-%m-%d %H:%i:%s') dt, ")
-                .append("COUNT(p.id) posts FROM")
+    protected JsonObject getThreadDetails(long id) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
+                .append("DATE_FORMAT(`date`, '%Y-%m-%d %H:%i:%s') dt ")
+                .append("FROM")
                 .append(Helper.TABLE_THREAD)
-                .append("t ").append(" JOIN")
-                .append(Helper.TABLE_POST)
-                .append("p ON t.`id`=p.`thread_id`")
-                .append(" WHERE t.`id` = ").append(id)
-                .append(" AND p.isDeleted = 0");
+                .append("WHERE `id` = ").append(id);
         JsonObject reslult = new JsonObject();
         mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
             if (rs.next()) {
@@ -236,7 +228,7 @@ public class BaseServlet extends HttpServlet {
         mHelper.runUpdate(mHelper.getConnection(), sql.toString());
         JsonObject result;
         if (table.equals(Helper.TABLE_THREAD))
-            result = getThreadDetails(id, null);
+            result = getThreadDetails(id);
         else result = getPostDetails(id);
         return result;
     }

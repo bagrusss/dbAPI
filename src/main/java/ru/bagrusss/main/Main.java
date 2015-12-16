@@ -47,7 +47,7 @@ public class Main {
         contextHandler.addServlet(new ServletHolder(new ru.bagrusss.servlets.forum.Details()), ru.bagrusss.servlets.forum.Details.URL);
         contextHandler.addServlet(new ServletHolder(new ListPosts()), ListPosts.URL);
         contextHandler.addServlet(new ServletHolder(new ListThreads()), ListThreads.URL);
-        contextHandler.addServlet(new ServletHolder(new ListUser()), ListUser.URL);
+        contextHandler.addServlet(new ServletHolder(new ListUsers()), ListUsers.URL);
 
         contextHandler.addServlet(new ServletHolder(new Close()), Close.URL);
         contextHandler.addServlet(new ServletHolder(new Create()), Create.URL);

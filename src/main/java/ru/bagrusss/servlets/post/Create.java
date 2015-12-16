@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by vladislav on 19.10.15.
+ * Created by vladislav
  */
 
 public class Create extends BaseServlet {
@@ -35,7 +35,8 @@ public class Create extends BaseServlet {
                 .append(Helper.TABLE_POST)
                 .append("(`thread_id`,`message`, `user_email`, `forum_short_name`, `date`, ");
         List<Object> sqlParams = new ArrayList<>(11);
-        sqlParams.add(params.get("thread").getAsLong());
+        long thread;
+        sqlParams.add(thread = params.get("thread").getAsLong());
         sqlParams.add(params.get("message").getAsString());
         sqlParams.add(params.get("user").getAsString());
         sqlParams.add(params.get("forum").getAsString());
@@ -66,8 +67,9 @@ public class Create extends BaseServlet {
             sql.append("`isSpam`, ");
             ++count;
         }
+        boolean isDeleted = false;
         if (params.has("isDeleted")) {
-            sqlParams.add(params.get("isDeleted").getAsBoolean());
+            sqlParams.add(isDeleted = params.get("isDeleted").getAsBoolean());
             sql.append("`isDeleted`");
             ++count;
         }
@@ -84,11 +86,15 @@ public class Create extends BaseServlet {
                 if (gk.next()) {
                     params.addProperty("id", gk.getLong(1));
                     for (byte i = 2; i <= columns; ++i) {
-                        Object obj= gk.getObject(i);
+                        Object obj = gk.getObject(i);
                         params.add(metaData.getColumnName(i), mGson.toJsonTree(obj == null ? null : gk.getObject(i)));
                     }
                 }
             });
+            if (!isDeleted) {
+                mHelper.runUpdate(mHelper.getConnection(),
+                        "Update Thread SET posts=posts+1 WHERE id=" + thread);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

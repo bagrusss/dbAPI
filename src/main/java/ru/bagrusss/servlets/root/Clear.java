@@ -59,8 +59,9 @@ public class Clear extends BaseServlet {
                     .append("`message` BLOB NOT NULL,")
                     .append("`title` VARCHAR(100) NULL,")
                     .append("`slug` VARCHAR(100) NULL,")
-                    .append("`likes` INT UNSIGNED NULL DEFAULT 0,")
-                    .append("`dislikes` INT UNSIGNED NULL DEFAULT 0,")
+                    .append("`posts` INT UNSIGNED DEFAULT 0,")
+                    .append("`likes` INT UNSIGNED DEFAULT 0,")
+                    .append("`dislikes` INT UNSIGNED DEFAULT 0,")
                     .append("`forum_id` INT NOT NULL,")
                     .append("`forum` VARCHAR(100), ") //forum short_name
                     .append("`user_email` VARCHAR(50) NOT NULL,")
@@ -90,7 +91,8 @@ public class Clear extends BaseServlet {
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_FOLLOWERS)
                     .append("(`follower_email` VARCHAR(50) NOT NULL,")
                     .append("`following_email` VARCHAR(50) NOT NULL,")
-                    .append("PRIMARY KEY (`follower_email`, `following_email`))")
+                    .append("PRIMARY KEY (`follower_email`, `following_email`), ")
+                    .append("UNIQUE KEY folloing_follower (`following_email`, `follower_email`)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
@@ -100,6 +102,8 @@ public class Clear extends BaseServlet {
                     .append(" PRIMARY KEY (`user_email`, `thread_id`))")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
+            //TODO
+            mHelper.runUpdate(mHelper.getConnection(), "SET sql_mode = 'NO_UNSIGNED_SUBTRACTION'");
         } catch (SQLException e) {
             e.printStackTrace();
         }

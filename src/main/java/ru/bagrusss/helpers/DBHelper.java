@@ -20,7 +20,7 @@ public final class DBHelper implements Helper {
     private static DBHelper mDBHelper;
     private final BasicDataSource mBasicDataSource;
 
-    private static final int MIN_CONNECTIONS = 4;
+    private static final int MIN_CONNECTIONS = 6;
     private static final int MAX_CONNECTIONS = 10;
 
 
@@ -35,10 +35,11 @@ public final class DBHelper implements Helper {
         mBasicDataSource.setMaxIdle(MAX_CONNECTIONS);
         mBasicDataSource.setMaxOpenPreparedStatements(MAX_OPEN_PREPARED_STATEMENTS);
         try {
-            this.runUpdate(getConnection(),"SET sql_mode=\"NO_UNSIGNED_SUBTRACTION\";");
+            this.runUpdate(getConnection(), "SET sql_mode='NO_UNSIGNED_SUBTRACTION';");
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
     public static DBHelper getInstance() {
@@ -112,13 +113,14 @@ public final class DBHelper implements Helper {
     }
 
     @Override
-    public long insertAndGetID(@NotNull Connection connection, String sql) throws SQLException {
+    public long updateAndGetID(@NotNull Connection connection, String sql) throws SQLException {
         long id = 0;
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
             try (ResultSet res = statement.getGeneratedKeys()) {
                 if (res.next()) {
                     id = res.getLong(1);
+                    res.moveToInsertRow();
                 }
             }
         } finally {

@@ -42,11 +42,8 @@ public class Details extends BaseServlet {
 
         /*
             SELECT *, likes-dislikes AS points FROM `Thread` t WHERE t.`id` = ?
-
             SELECT * FROM `User` WHERE `email` = ?
             SELECT * FROM `Forum` WHERE `short_name` = ?
-
-            select count(p.id) from Post p join Thread t on t.id=p.thread_id where t.id=1 and p.isDeleted=0
 
          */
         long id = Long.valueOf(req.getParameter("thread"));
@@ -58,7 +55,7 @@ public class Details extends BaseServlet {
         }
         JsonObject reslult = null;
         try {
-            reslult = getThreadDetails(id, null);
+            reslult = getThreadDetails(id);
         } catch (SQLException e) {
             e.printStackTrace();
         }

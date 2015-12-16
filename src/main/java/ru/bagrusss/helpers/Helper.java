@@ -24,7 +24,7 @@ public interface Helper {
 
     Connection getConnection() throws SQLException;
 
-    void runQuery(@NotNull Connection connection, String sql, ResultHandler resultHandlet) throws SQLException;
+    void runQuery(@NotNull Connection connection, String sql, ResultHandler handler) throws SQLException;
 
     void runPreparedQuery(@NotNull Connection connection, String sql, List<?> params, ResultHandler resultHandlet) throws SQLException;
 
@@ -32,7 +32,7 @@ public interface Helper {
 
     int runPreparedUpdate(@NotNull Connection connection, String sql, List<?> params) throws SQLException;
 
-    long insertAndGetID(@NotNull Connection connection, String sql) throws SQLException;
+    long updateAndGetID(@NotNull Connection connection, String sql) throws SQLException;
 
     long preparedInsertAndGetKeys(@NotNull Connection connection, String sql, List<?> params) throws SQLException;
 

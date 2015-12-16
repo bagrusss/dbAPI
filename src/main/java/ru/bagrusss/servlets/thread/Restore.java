@@ -25,7 +25,10 @@ public class Restore extends BaseServlet {
          */
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         try {
-            toggleField(Helper.TABLE_THREAD, params.get("thread").getAsLong(),"isDeleted", false);
+            long id = params.get("thread").getAsLong();
+            toggleField(Helper.TABLE_THREAD, id, "isDeleted", false);
+            String sql = "UPDATE `Post` SET isDeleted = 0 WHERE thread_id =" + id;
+            mHelper.runUpdate(mHelper.getConnection(), sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }

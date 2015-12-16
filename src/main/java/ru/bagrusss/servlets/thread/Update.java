@@ -37,7 +37,7 @@ public class Update extends BaseServlet {
         try {
             String sql = "UPDATE `Thread` SET `message`=?, `slug`=? WHERE id =?";
             mHelper.runPreparedUpdate(mHelper.getConnection(), sql, sqlParams);
-            result = getThreadDetails(id, null);
+            result = getThreadDetails(id);
         } catch (SQLException e) {
             e.printStackTrace();
         }

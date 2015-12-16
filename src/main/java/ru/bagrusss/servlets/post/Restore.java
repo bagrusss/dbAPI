@@ -9,7 +9,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Created by vladislav on 19.10.15.
@@ -26,6 +28,14 @@ public class Restore extends BaseServlet {
          */
         try {
             toggleField(Helper.TABLE_POST, id, "isDeleted", false);
+            String update = "UPDATE `Thread` SET `posts`=`posts`+1 WHERE `id`=";
+            Connection connection = mHelper.getConnection();
+            mHelper.runQuery(connection, "SELECT `thread_id` FROM Post Where id=" + id, rs -> {
+                if (rs.next())
+                    try (Statement st = connection.createStatement()) {
+                        st.executeUpdate(update + rs.getLong(1));
+                    }
+            });
         } catch (SQLException e) {
             e.printStackTrace();
         }

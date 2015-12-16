@@ -42,8 +42,6 @@ public class Details extends BaseServlet {
             Errors.notFound(resp.getWriter());
         else
             Errors.correct(resp.getWriter(), result);
-
     }
-
 
 }
