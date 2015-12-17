@@ -23,7 +23,6 @@ public class Details extends BaseServlet {
         String forum = req.getParameter("forum");
         /*
             SELECT * FROM `Forum` WHERE short_name = ?;
-
          */
         JsonObject result = null;
         try {

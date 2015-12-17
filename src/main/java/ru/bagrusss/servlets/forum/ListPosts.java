@@ -67,7 +67,6 @@ public class ListPosts extends BaseServlet {
         if (par != null) {
             sql.append(" LIMIT ").append(par);
         }
-
         JsonArray result = new JsonArray();
         try {
             final boolean finalThread = thread;
