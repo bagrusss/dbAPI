@@ -2,6 +2,7 @@ package ru.bagrusss.helpers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintWriter;
 
@@ -59,21 +60,21 @@ public final class Errors {
         writer.write(resp.toString());
     }
 
-    public static void correct(PrintWriter writer, JsonObject response) {
+    public static void correct(PrintWriter writer, @Nullable JsonObject response) {
         JsonObject resp = new JsonObject();
         resp.addProperty("code", CODE_OK);
         resp.add("response", response);
         writer.write(resp.toString());
     }
 
-    public static void correct(PrintWriter writer, String response) {
+    public static void correct(PrintWriter writer, @Nullable String response) {
         JsonObject resp = new JsonObject();
         resp.addProperty("code", CODE_OK);
         resp.addProperty("response", response);
         writer.write(resp.toString());
     }
 
-    public static void correct(PrintWriter writer, JsonArray response) {
+    public static void correct(PrintWriter writer, @Nullable JsonArray response) {
         JsonObject resp = new JsonObject();
         resp.addProperty("code", CODE_OK);
         resp.add("response", response);

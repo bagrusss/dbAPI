@@ -210,6 +210,27 @@ public class BaseServlet extends HttpServlet {
     }
 
     @Nullable
+    protected JsonObject getForumDetails(String forum) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT * FROM")
+                .append(Helper.TABLE_FORUM)
+                .append("WHERE `short_name` = ").append('\"')
+                .append(forum)
+                .append('\"');
+        JsonObject result = new JsonObject();
+        final boolean[] isFound = {false};
+        mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
+            if (rs.next()) {
+                result.addProperty("id", rs.getInt(1));
+                result.addProperty("short_name", forum);
+                result.addProperty("name", rs.getString("name"));
+                result.addProperty("user", rs.getString("user_email"));
+                isFound[0] = true;
+            }
+        });
+        return isFound[0] ? result : null;
+    }
+
+    @Nullable
     protected JsonObject vote(String table, long id, byte value) throws SQLException {
         StringBuilder sql = new StringBuilder("UPDATE")
                 .append(table)

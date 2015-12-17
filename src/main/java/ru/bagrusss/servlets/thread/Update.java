@@ -24,11 +24,9 @@ public class Update extends BaseServlet {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         long id = params.get("thread").getAsLong();
-
         /*
             UPDATE `Thread` SET `message`=?, `slug`=? WHERE id =?;
          */
-
         List<Object> sqlParams = new ArrayList<>();
         sqlParams.add(params.get("message").getAsString());
         sqlParams.add(params.get("slug").getAsString());

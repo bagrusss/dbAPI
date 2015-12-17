@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by vladislav
@@ -18,13 +16,6 @@ import java.util.List;
 public class Details extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/thread/details/";
 
-    final List<String> mRelated = new ArrayList<>();
-
-    public Details() {
-        super();
-        mRelated.add("user");
-        mRelated.add("forum");
-    }
 
     private boolean checkParam(String[] param) {
         if (param == null)
@@ -39,7 +30,6 @@ public class Details extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-
         /*
             SELECT *, likes-dislikes AS points FROM `Thread` t WHERE t.`id` = ?
             SELECT * FROM `User` WHERE `email` = ?

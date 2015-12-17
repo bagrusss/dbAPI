@@ -22,7 +22,7 @@ public class Remove extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
-        //индекс по id, thread_id
+        //индекс по id, thread_id ?
         long id = params.get("post").getAsLong();
         /*
               UPDATE `Post` SET `isDeleted`=1 WHERE `id`=?;
@@ -30,10 +30,10 @@ public class Remove extends BaseServlet {
         try {
             Connection connection = mHelper.getConnection();
             toggleField(Helper.TABLE_POST, id, "isDeleted", true);
-            String update = "UPDATE `Thread` SET `posts`=`posts`-1 WHERE `id`=";
             mHelper.runQuery(connection, "SELECT `thread_id` FROM Post Where id=" + id, rs -> {
                 if (rs.next())
                     try (Statement st = connection.createStatement()) {
+                        String update = "UPDATE `Thread` SET `posts`=`posts`-1 WHERE `id`=";
                         st.executeUpdate(update + rs.getLong(1));
                     }
             });

@@ -2,7 +2,6 @@ package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -21,13 +20,14 @@ public class Remove extends BaseServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         /*
-            UPDATE `Thread` SET isDeleted = 1 WHERE id =?;
+            UPDATE `Thread` SET isDeleted = 1,  WHERE id =?;
          */
         try {
             long id = params.get("thread").getAsLong();
-            toggleField(Helper.TABLE_THREAD, id, "`isDeleted`", true);
-            String sql = "UPDATE `Post` SET isDeleted = 1 WHERE thread_id =" + id;
-            mHelper.runUpdate(mHelper.getConnection(), sql);
+            mHelper.runUpdate(mHelper.getConnection(),
+                    "UPDATE `Thread` SET posts=0, isDeleted=1 WHERE id=" + id);
+            mHelper.runUpdate(mHelper.getConnection(),
+                    "UPDATE `Post` SET isDeleted = 1 WHERE thread_id =" + id);
         } catch (SQLException e) {
             e.printStackTrace();
         }

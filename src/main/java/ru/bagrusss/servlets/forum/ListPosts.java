@@ -3,6 +3,7 @@ package ru.bagrusss.servlets.forum;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
+import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -21,38 +22,25 @@ public class ListPosts extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-        String[] related = req.getParameterValues("related");
         /*
             SELECT *, `likes`-`dislikes` points FROM `Posts` WHERE `forum_short_name` = ?
-
-            если forum user thread
-
-            SELECT *, p.`likes`-p.`dislikes` p_points, t.`likes`-t.`dislikes` t_points FROM `Post` p
-            JOIN `User` u ON u.`email` = p.`user_email`
-            JOIN `Forum` f ON f.`short_name` = p.`forum_short_name`
-            JOIN `Thread` t ON t.`forum`=p.`forum_short_name` WHERE t.`forum_short_name` = ?
-
          */
-        StringBuilder sql = new StringBuilder("SELECT p.id pid, p.date, pdate, p.isApproved pisApp, ")
-                .append("p.isDeleted pisDel, p.isEdited pisEd, p.isHighlighted pisHig, p.isSpam pisSpam, ")
-                .append("p.message pmess, p.likes plik, p.dislikes pdis, p.thread_id ptid, ")
-                .append("p.user_email puser, p.forum_short_name pforum, p.parent ppar ")
-                .append("FROM `Post` p ");
-        boolean isForum = false;
-        boolean isThread = false;
+
+        String[] related = req.getParameterValues("related");
+        boolean user = false;
+        boolean forum = false;
+        boolean thread = false;
         if (related != null) {
             for (String rel : related) {
                 switch (rel) {
+                    case "user":
+                        user = true;
+                        break;
                     case "forum":
-                        sql.append("JOIN `Forum` f ON f.`short_name` = p.`forum_short_name ");
-                        isForum = true;
+                        forum = true;
                         break;
                     case "thread":
-                        sql.append("JOIN `Thread` t ON t.`forum` = p.`forum_short_name ");
-                        isThread = true;
-                        break;
-                    case "user":
-
+                        thread = true;
                         break;
                     default:
                         resp.setStatus(HttpServletResponse.SC_OK);
@@ -61,18 +49,62 @@ public class ListPosts extends BaseServlet {
                 }
             }
         }
-        String forum = req.getParameter("forum");
-        sql.append("WHERE p.`forum_short_name` = \'").append(forum).append('\'');
-        /*JsonArray resulr = new JsonArray();
+
+        StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
+                .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd ")
+                .append("FROM").append(Helper.TABLE_POST);
+        String par = req.getParameter("forum");
+        sql.append("WHERE `forum_short_name` = \'").append(par).append('\'');
+        par = req.getParameter("since");
+        if (par != null) {
+            sql.append(" AND `date` >= \'").append(par).append("\' ");
+        }
+        par = req.getParameter("order");
+        if (par != null) {
+            sql.append("ORDER BY `date` ").append(par);
+        }
+        par = req.getParameter("limit");
+        if (par != null) {
+            sql.append(" LIMIT ").append(par);
+        }
+
+        JsonArray result = new JsonArray();
         try {
+            final boolean finalThread = thread;
+            final boolean finalUser = user;
+            final boolean finalForum = forum;
             mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
                 while (rs.next()) {
-                    JsonObject item = new JsonObject();
+                    JsonObject pst = new JsonObject();
+                    pst.addProperty("id", rs.getLong(1));
+                    pst.addProperty("isApproved", rs.getBoolean("isApproved"));
+                    pst.addProperty("isDeleted", rs.getBoolean("isDeleted"));
+                    pst.addProperty("isEdited", rs.getBoolean("isEdited"));
+                    pst.addProperty("isHighlighted", rs.getBoolean("isHighlighted"));
+                    pst.addProperty("isSpam", rs.getBoolean("isSpam"));
+                    pst.addProperty("message", rs.getString("message"));
+                    if (finalThread)
+                        pst.add("thread", getThreadDetails(rs.getLong("thread_id")));
+                    else pst.addProperty("thread", rs.getLong("thread_id"));
+                    pst.addProperty("date", rs.getString("pd"));
+                    if (!finalUser)
+                        pst.addProperty("user", rs.getString("user_email"));
+                    else pst.add("user", getUserDetails(rs.getString("user_email"), true));
+                    if (!finalForum)
+                        pst.addProperty("forum", rs.getString("forum_short_name"));
+                    else pst.add("forum", getForumDetails(rs.getString("forum_short_name")));
+                    pst.addProperty("dislikes", rs.getLong("dislikes"));
+                    pst.addProperty("likes", rs.getLong("likes"));
+                    pst.addProperty("points", rs.getLong("points"));
+                    long parent = rs.getLong("parent");
+                    pst.addProperty("parent", parent == 0 ? null : parent);
+                    result.add(pst);
                 }
             });
         } catch (SQLException e) {
             e.printStackTrace();
-        }*/
+        }
         resp.setStatus(HttpServletResponse.SC_OK);
+        Errors.correct(resp.getWriter(), result);
     }
 }

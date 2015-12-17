@@ -2,7 +2,6 @@ package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -26,9 +25,11 @@ public class Restore extends BaseServlet {
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         try {
             long id = params.get("thread").getAsLong();
-            toggleField(Helper.TABLE_THREAD, id, "isDeleted", false);
-            String sql = "UPDATE `Post` SET isDeleted = 0 WHERE thread_id =" + id;
-            mHelper.runUpdate(mHelper.getConnection(), sql);
+            mHelper.runUpdate(mHelper.getConnection(),
+                    "UPDATE `Thread` SET posts=(SELECT COUNT(`Post`.id) FROM Post WHERE thread_id=" +
+                            id + "), isDeleted=0 WHERE id=" + id);
+            mHelper.runUpdate(mHelper.getConnection(),
+                    "UPDATE `Post` SET isDeleted = 0 WHERE thread_id =" + id);
         } catch (SQLException e) {
             e.printStackTrace();
         }
