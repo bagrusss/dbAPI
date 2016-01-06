@@ -19,7 +19,7 @@ public class Clear extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         mSQLBuilder.setLength(0);
-        resp.setContentType("application/json");
+        resp.setContentType("application/json; charset=utf8");
         mSQLBuilder.append("DROP TABLE IF EXISTS");
         for (String tbl : Helper.TABLES) {
             mSQLBuilder.append(tbl).append(',');

@@ -26,6 +26,8 @@ public interface Helper {
 
     void runQuery(@NotNull Connection connection, String sql, ResultHandler handler) throws SQLException;
 
+    <T> T runTypedQuery(Connection conn, String sql, TResultHandler<T> tHandler) throws SQLException;
+
     void runPreparedQuery(@NotNull Connection connection, String sql, List<?> params, ResultHandler resultHandlet) throws SQLException;
 
     int runUpdate(@NotNull Connection connection, String sql) throws SQLException;

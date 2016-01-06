@@ -1,6 +1,6 @@
 target/
 .idea/
 *.mwb*
-META-INF/
+src/main/resources/META-INF/
 *.jar
 

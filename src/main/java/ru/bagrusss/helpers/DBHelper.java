@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.List;
 
 /**
- * Created by vladislav on 19.10.15.
+ * Created by vladislav
  */
 
 public final class DBHelper implements Helper {
@@ -39,7 +39,6 @@ public final class DBHelper implements Helper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     public static DBHelper getInstance() {
@@ -57,6 +56,13 @@ public final class DBHelper implements Helper {
     @Override
     public Connection getConnection() throws SQLException {
         return mBasicDataSource.getConnection();
+    }
+
+    public <T> T runTypedQuery(Connection conn, String sql, TResultHandler<T> tHandler) throws SQLException {
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            return tHandler.handle(resultSet);
+        }
     }
 
     @Override

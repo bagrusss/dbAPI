@@ -49,7 +49,6 @@ public class ListPosts extends BaseServlet {
                 }
             }
         }
-
         StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
                 .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd ")
                 .append("FROM").append(Helper.TABLE_POST);
