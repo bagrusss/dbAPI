@@ -6,6 +6,7 @@ import java.sql.SQLException;
 /**
  * Created by vladislav
  */
+
 public interface TResultHandler<T> {
     T handle(ResultSet rs) throws SQLException;
 }

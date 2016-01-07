@@ -28,6 +28,8 @@ public interface Helper {
 
     <T> T runTypedQuery(Connection conn, String sql, TResultHandler<T> tHandler) throws SQLException;
 
+    <T> T runTypedPreparedQuery(Connection conn, String sql, List<?> params, TResultHandler<T> tHandler) throws SQLException;
+
     void runPreparedQuery(@NotNull Connection connection, String sql, List<?> params, ResultHandler resultHandlet) throws SQLException;
 
     int runUpdate(@NotNull Connection connection, String sql) throws SQLException;

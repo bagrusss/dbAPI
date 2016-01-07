@@ -1,6 +1,5 @@
 package ru.bagrusss.servlets.root;
 
-import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
@@ -63,7 +62,7 @@ public class Clear extends BaseServlet {
                     .append("`likes` INT UNSIGNED DEFAULT 0,")
                     .append("`dislikes` INT UNSIGNED DEFAULT 0,")
                     .append("`forum_id` INT NOT NULL,")
-                    .append("`forum` VARCHAR(100), ") //forum short_name
+                    .append("`forum` VARCHAR(100), ")
                     .append("`user_email` VARCHAR(50) NOT NULL,")
                     .append("PRIMARY KEY (`id`)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
@@ -102,15 +101,11 @@ public class Clear extends BaseServlet {
                     .append(" PRIMARY KEY (`user_email`, `thread_id`))")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
-            //TODO
+            //TODO настроить в mysql на виртуалке
             mHelper.runUpdate(mHelper.getConnection(), "SET sql_mode = 'NO_UNSIGNED_SUBTRACTION'");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        JsonObject rsp = new JsonObject();
-        resp.setStatus(HttpServletResponse.SC_OK);
-        rsp.addProperty("code", Errors.CODE_OK);
-        rsp.addProperty("response", Errors.MESSAGE_OK);
-        resp.getWriter().println(rsp.toString());
+        Errors.correct(resp.getWriter(), Errors.MESSAGE_OK);
     }
 }

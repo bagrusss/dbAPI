@@ -20,7 +20,7 @@ public final class DBHelper implements Helper {
     private static DBHelper mDBHelper;
     private final BasicDataSource mBasicDataSource;
 
-    private static final int MIN_CONNECTIONS = 6;
+    private static final int MIN_CONNECTIONS = 8;
     private static final int MAX_CONNECTIONS = 10;
 
 
@@ -58,10 +58,27 @@ public final class DBHelper implements Helper {
         return mBasicDataSource.getConnection();
     }
 
-    public <T> T runTypedQuery(Connection conn, String sql, TResultHandler<T> tHandler) throws SQLException {
-        try (Statement statement = conn.createStatement();
+    public <T> T runTypedQuery(Connection connection, String sql, TResultHandler<T> tHandler) throws SQLException {
+        try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             return tHandler.handle(resultSet);
+        } finally {
+            connection.close();
+        }
+    }
+
+    @Override
+    public <T> T runTypedPreparedQuery(Connection connection, String sql, List<?> params, TResultHandler<T> tHandler) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            int i = 1;
+            for (Object par : params) {
+                preparedStatement.setObject(i++, par);
+            }
+            try (ResultSet resultSet = preparedStatement.executeQuery(sql)) {
+                return tHandler.handle(resultSet);
+            }
+        } finally {
+            connection.close();
         }
     }
 
@@ -126,7 +143,7 @@ public final class DBHelper implements Helper {
             try (ResultSet res = statement.getGeneratedKeys()) {
                 if (res.next()) {
                     id = res.getLong(1);
-                    res.moveToInsertRow();
+                    //res.moveToInsertRow();
                 }
             }
         } finally {
@@ -170,3 +187,4 @@ public final class DBHelper implements Helper {
         }
     }
 }
+

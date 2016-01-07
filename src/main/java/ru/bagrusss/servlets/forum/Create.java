@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +28,13 @@ public class Create extends BaseServlet {
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         resp.setCharacterEncoding(DEFAULT_ENCODING);
 
-        StringBuilder sqlBuilder = new StringBuilder();
+        StringBuilder sql = new StringBuilder();
         List<Object> sqlParams = new ArrayList<>(3);
         String name = params.get("name").getAsString();
         String shortname = params.get("short_name").getAsString();
         String user = params.get("user").getAsString();
-        sqlBuilder.setLength(0);
-        sqlBuilder.append("INSERT IGNORE INTO ").append(Helper.TABLE_FORUM)
+        sql.setLength(0);
+        sql.append("INSERT IGNORE INTO ").append(Helper.TABLE_FORUM)
                 .append("(`name`, `short_name`, `user_email`)")
                 .append(" VALUES (?,?,?)");
         sqlParams.add(name);
@@ -41,13 +42,16 @@ public class Create extends BaseServlet {
         sqlParams.add(user);
         long id = 0;
         try {
-            id = mHelper.preparedInsertAndGetKeys(mHelper.getConnection(), sqlBuilder.toString(), sqlParams);
+            Connection connection = mHelper.getConnection();
+            id = mHelper.runTypedQuery(connection, "SELECT `id` FROM " + Helper.TABLE_FORUM
+                            + "WHERE `short_name`= \'" + shortname + '\'',
+                    rs -> rs.next() ? rs.getLong(1) :
+                            mHelper.preparedInsertAndGetKeys(connection, sql.toString(), sqlParams));
         } catch (SQLException e) {
             e.printStackTrace();
         }
         params.addProperty("id", id);
         resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), params);
-
     }
 }
