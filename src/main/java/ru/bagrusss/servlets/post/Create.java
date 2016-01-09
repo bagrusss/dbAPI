@@ -1,5 +1,6 @@
 package ru.bagrusss.servlets.post;
 
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.helpers.Helper;
@@ -43,7 +44,11 @@ public class Create extends BaseServlet {
         sqlParams.add(params.get("date").getAsString());
         byte count = 5;
         if (params.has("parent")) {
-            sqlParams.add(params.get("parent").getAsInt());
+            try {
+                sqlParams.add(params.get("parent").getAsLong());
+            } catch (UnsupportedOperationException e) {
+                sqlParams.add(null);
+            }
             sql.append("`parent`, ");
             ++count;
         }
