@@ -36,7 +36,7 @@ public class Clear extends BaseServlet {
                     .append("`email` VARCHAR(50) NOT NULL, ")
                     .append("`isAnonymous` TINYINT(1) DEFAULT false,")
                     .append("PRIMARY KEY(`email`), ")
-                    .append("INDEX `Email_Id_Name` (`email`,`id`,`name`), ") //forum/listUsers покрывающий
+                    .append("UNIQUE INDEX `Name_id` (`name`,`id`), ")
                     .append("UNIQUE INDEX `id_UNIQUE` (`id`) ) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
@@ -47,7 +47,7 @@ public class Clear extends BaseServlet {
                     .append("`short_name` VARCHAR(100) NOT NULL,")
                     .append("`user_email` VARCHAR(50) NOT NULL,")
                     .append("PRIMARY KEY (`short_name`),")
-                    .append("UNIQUE INDEX `name_UNIQUE` (`name`),")
+                    .append("UNIQUE INDEX `Name_UNIQUE` (`name`),")
                     .append("UNIQUE INDEX `id_UNIQUE` (`id`)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
@@ -88,10 +88,10 @@ public class Clear extends BaseServlet {
                     .append("`forum_short_name` VARCHAR(100),")
                     .append("`parent` INT DEFAULT NULL,")
                     .append("PRIMARY KEY (`id`), ")
-                    .append("INDEX `Id_ThreadId` (`id`, `thread_id`), ") //TODO нужен ли?
-                    .append("INDEX `UserEmail_date` (`user_email`, `date`), ") //для user/listPosts
-                    .append("INDEX `ThreadId_date` (`thread_id`, `date`), ") //для post/List
-                    .append("INDEX `ForumShortName_date` (`forum_short_name`, `date`)) ") //для post/List
+                    .append("INDEX `UserEmail_Date` (`user_email`, `date`), ") //для user/listPosts
+                    .append("INDEX `ThreadId_Date` (`thread_id`, `date`), ") //для post/List
+                    .append("INDEX `ForumShortName_Date` (`forum_short_name`, `date`), ") //для post/List
+                    .append("INDEX `ForumShortName_UserEmail` (`forum_short_name`, `user_email`)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
@@ -110,7 +110,7 @@ public class Clear extends BaseServlet {
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
             //TODO настроить в mysql на виртуалке
-            mHelper.runUpdate(mHelper.getConnection(), "SET sql_mode = 'NO_UNSIGNED_SUBTRACTION'");
+            //mHelper.runUpdate(mHelper.getConnection(), "SET sql_mode = 'NO_UNSIGNED_SUBTRACTION'");
         } catch (SQLException e) {
             e.printStackTrace();
         }

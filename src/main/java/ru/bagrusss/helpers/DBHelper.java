@@ -20,8 +20,8 @@ public final class DBHelper implements Helper {
     private static DBHelper mDBHelper;
     private final BasicDataSource mBasicDataSource;
 
-    private static final int MIN_CONNECTIONS = 8;
-    private static final int MAX_CONNECTIONS = 10;
+    private static final int MIN_CONNECTIONS = 12;
+    private static final int MAX_CONNECTIONS = 12;
 
 
     private DBHelper() {

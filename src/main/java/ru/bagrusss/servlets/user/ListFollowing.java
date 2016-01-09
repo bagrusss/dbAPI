@@ -1,7 +1,6 @@
 package ru.bagrusss.servlets.user;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
@@ -37,10 +36,9 @@ public class ListFollowing extends BaseServlet {
          */
         String parameter = req.getParameter("user");
         StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN u.email FROM")
-                .append(Helper.TABLE_FOLLOWERS).append("f ")
-                .append("FORCE INDEX (following_follower) ")
+                .append(Helper.TABLE_USER).append("u FORCE INDEX (Name_id) ")
                 .append("INNER JOIN")
-                .append(Helper.TABLE_USER).append("u ")
+                .append(Helper.TABLE_FOLLOWERS).append("f FORCE INDEX (primary) ")
                 .append("ON f.follower_email=u.email ")
                 .append("WHERE f.following_email=").append('\'')
                 .append(parameter).append("\' ");

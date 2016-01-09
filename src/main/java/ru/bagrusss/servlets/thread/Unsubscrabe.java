@@ -21,7 +21,7 @@ public class Unsubscrabe extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         /*
-             `Subscriptions` WHERE `user_email` = ? AND `thread_id` = ?;
+            DELETE FROM `Subscriptions` WHERE `user_email` = ? AND `thread_id` = ?;
          */
         resp.setCharacterEncoding(DEFAULT_ENCODING);
 

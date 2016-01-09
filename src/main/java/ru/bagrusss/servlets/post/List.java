@@ -42,10 +42,11 @@ public class List extends BaseServlet {
                     .append(Long.valueOf(req.getParameter("thread")));
         par = req.getParameter("since");
         if (par != null)
-            sql.append(" AND `date` >= \'").append(par);
+            sql.append(" AND `date` >= \'")
+                    .append(par).append('\'');
         par = req.getParameter("order");
         if (par != null)
-            sql.append("\' ORDER BY `date` ").append(par);
+            sql.append(" ORDER BY `date` ").append(par);
         par = req.getParameter("limit");
         if (par != null)
             sql.append(" LIMIT ").append(par);

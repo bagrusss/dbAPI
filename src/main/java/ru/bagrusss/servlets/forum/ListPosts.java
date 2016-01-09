@@ -56,7 +56,8 @@ public class ListPosts extends BaseServlet {
         sql.append("WHERE `forum_short_name` = \'").append(par).append('\'');
         par = req.getParameter("since");
         if (par != null) {
-            sql.append(" AND `date` >= \'").append(par).append("\' ");
+            sql.append(" AND `date` >= \'")
+                    .append(par).append("\' ");
         }
         par = req.getParameter("order");
         if (par != null) {

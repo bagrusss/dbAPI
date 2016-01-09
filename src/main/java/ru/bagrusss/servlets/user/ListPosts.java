@@ -21,11 +21,8 @@ public class ListPosts extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         /*
-            SELECT * FROM `Post` WHERE `user_email`=?;
-            SELECT * FROM `Post` WHERE `user_email`=? AND date >= ?;
             SELECT * FROM `Post` WHERE `user_email`=? AND date >= ? ORDER BY `date` ASC LIMIT ?;
          */
-
         String par = req.getParameter("user");
         StringBuilder sql = new StringBuilder("SELECT *, DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd, ")
                 .append("likes-CAST(dislikes AS SIGNED) points FROM")

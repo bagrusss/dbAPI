@@ -22,13 +22,15 @@ public class ListUsers extends BaseServlet {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         String param = req.getParameter("forum");
         /*
-            SELECT * FROM `User` u JOIN `Forum` f
-            ON u.email=f.user_email
-            WHERE f.short_name = ? AND u.id >= ? ORDER BY u.name LIMIT ?;
+            SELECT STRAIGHT_JOIN u.email FROM User u FORCE INDEX(Name_id)
+            JOIN Post p FORCE INDEX (ForumShortName_UserEmail)
+            ON u.email=p.user_email WHERE p.forum_short_name = ""
+            AND u.id>=10 GROUP BY u.`name` ORDER BY u.`name` LIMIT 10
          */
-        StringBuilder sql = new StringBuilder("SELECT DISTINCT u.email FROM")
-                .append(Helper.TABLE_POST).append("p ")
-                .append("JOIN ").append(Helper.TABLE_USER).append("u ")
+        StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN u.email FROM")
+                .append(Helper.TABLE_USER).append("u FORCE INDEX(Name_id) ")
+                .append("JOIN ").append(Helper.TABLE_POST)
+                .append("p FORCE INDEX (ForumShortName_UserEmail) ")
                 .append("ON u.email=p.user_email ")
                 .append("WHERE p.forum_short_name = '")
                 .append(param).append("\' ");
@@ -36,6 +38,7 @@ public class ListUsers extends BaseServlet {
         if (param != null) {
             sql.append(" AND u.id >= ").append(param);
         }
+        sql.append(" GROUP BY `name`");
         param = req.getParameter("order");
         if (param != null) {
             sql.append(" ORDER BY u.`name` ").append(param);

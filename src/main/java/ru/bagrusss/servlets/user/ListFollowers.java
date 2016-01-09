@@ -1,7 +1,6 @@
 package ru.bagrusss.servlets.user;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
@@ -22,26 +21,17 @@ public class ListFollowers extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         /*
-           SELECT * FROM `User` WHERE `email` = ?;
-
-           SELECT `following_email` FROM `Followers` WHERE `follower_email` = ?;
-           или
-           SELECT `following_email` FROM `Followers` WHERE `follower_email` = ? AND ?;
-           SELECT `following_email` FROM `Followers` WHERE `follower_email` = ? ORDER BY `name` ? LIMIT ?;
-
-           SELECT `follower_email` FROM `Followers` WHERE `following_email` =?;
-
-           SELECT `thread_id` FROM `Subscriptions` WHERE `user_email` = ?;
-
-           select u.*, f.following_email from User u Join Followers f
-           on f.follower_email=u.email where u.email="example2@mail.ru";
+            SELECT STRAIGHT_JOIN u.email FROM User u FORCE INDEX(Name_id)
+            JOIN Post p FORCE INDEX (ForumShortName_UserEmail)
+            ON u.email=p.user_email WHERE p.forum_short_name = ""
+            AND u.id>=10 GROUP BY u.`name` ORDER BY u.`name`
          */
         String parameter = req.getParameter("user");
         StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN ")
                 .append("u.email FROM")
-                .append(Helper.TABLE_FOLLOWERS).append("f ")
+                .append(Helper.TABLE_USER).append("u FORCE INDEX (Name_id) ")
                 .append("INNER JOIN")
-                .append(Helper.TABLE_USER).append("u ")
+                .append(Helper.TABLE_FOLLOWERS).append("f FORCE INDEX (following_follower) ")
                 .append("ON f.following_email=u.email ")
                 .append("WHERE f.follower_email=").append('\'')
                 .append(parameter).append("\' ");

@@ -49,10 +49,12 @@ public class ListThreads extends BaseServlet {
                 .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') td ")
                 .append("FROM").append(Helper.TABLE_THREAD);
         String par = req.getParameter("forum");
-        sql.append("WHERE `forum` = \'").append(par).append('\'');
+        sql.append("WHERE `forum` = \'")
+                .append(par).append('\'');
         par = req.getParameter("since");
         if (par != null) {
-            sql.append(" AND `date` >= \'").append(par).append("\' ");
+            sql.append(" AND `date` >= \'")
+                    .append(par).append("\' ");
         }
         par = req.getParameter("order");
         if (par != null) {

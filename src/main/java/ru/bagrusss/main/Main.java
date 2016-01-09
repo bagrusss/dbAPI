@@ -1,23 +1,19 @@
 package ru.bagrusss.main;
 
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import ru.bagrusss.servlets.forum.*;
 import ru.bagrusss.servlets.forum.ListPosts;
+import ru.bagrusss.servlets.forum.ListThreads;
+import ru.bagrusss.servlets.forum.ListUsers;
 import ru.bagrusss.servlets.root.Clear;
 import ru.bagrusss.servlets.root.Status;
 import ru.bagrusss.servlets.thread.*;
 import ru.bagrusss.servlets.thread.Create;
 import ru.bagrusss.servlets.thread.Details;
-import ru.bagrusss.servlets.thread.List;
-import ru.bagrusss.servlets.thread.Remove;
-import ru.bagrusss.servlets.thread.Restore;
-import ru.bagrusss.servlets.thread.Update;
-import ru.bagrusss.servlets.thread.Vote;
 import ru.bagrusss.servlets.user.*;
+import ru.bagrusss.servlets.forum.ListPosts;
+
 
 /**
  * Created by vladislav on 19.10.15.
@@ -25,14 +21,18 @@ import ru.bagrusss.servlets.user.*;
 
 public class Main {
 
-    public static final int PORT = 5000; //28087
+    public static final int PORT = 5000;
 
     public static void main(String[] args) {
-        Server server = new Server(PORT);
-        ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+        int port = PORT;
+        if (args.length > 0) {
+            port = Integer.valueOf(args[0]);
+        }
+        Server server = new Server(port);
+        ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
         contextHandler.addServlet(new ServletHolder(new Clear()), Clear.URL);
-        contextHandler.addServlet(new ServletHolder(new Status()), Status.URL+ '*');
+        contextHandler.addServlet(new ServletHolder(new Status()), Status.URL + '*');
 
         contextHandler.addServlet(new ServletHolder(new ru.bagrusss.servlets.user.Create()), ru.bagrusss.servlets.user.Create.URL);
         contextHandler.addServlet(new ServletHolder(new ru.bagrusss.servlets.user.Details()), ru.bagrusss.servlets.user.Details.URL);
@@ -69,9 +69,8 @@ public class Main {
         contextHandler.addServlet(new ServletHolder(new ru.bagrusss.servlets.post.Restore()), ru.bagrusss.servlets.post.Restore.URL);
         contextHandler.addServlet(new ServletHolder(new ru.bagrusss.servlets.post.Update()), ru.bagrusss.servlets.post.Update.URL);
         contextHandler.addServlet(new ServletHolder(new ru.bagrusss.servlets.post.Vote()), ru.bagrusss.servlets.post.Vote.URL);
-        HandlerList handlerList = new HandlerList();
-        handlerList.setHandlers(new Handler[]{contextHandler});
-        server.setHandler(handlerList);
+
+        server.setHandler(contextHandler);
         try {
             server.start();
         } catch (Exception e) {
@@ -83,22 +82,4 @@ public class Main {
             e.printStackTrace();
         }
     }
-    /*
-    public static class UrlParserHelper {
-
-        @NotNull
-        private static final String REGEXP_STR = "park.mail.ru/blog/topic/([^/]+)(/)?";
-
-        @NotNull
-        private final Pattern pattern = Pattern.compile(REGEXP_STR);
-
-        @Nullable
-        public String parse(@NotNull String url) {
-            final Matcher matcher = pattern.matcher(url);
-            if (matcher.find())
-                return matcher.group(1);
-            else
-                return null;
-        }
-    }*/
 }

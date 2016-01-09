@@ -3,4 +3,5 @@ target/
 *.mwb*
 src/main/resources/META-INF/
 *.jar
+me_httperf_scenario
 
