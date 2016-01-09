@@ -26,14 +26,14 @@ public class Vote extends BaseServlet {
          */
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         long id = params.get("post").getAsLong();
-        byte vote = params.get("vote").getAsByte();
+        byte vt = params.get("vote").getAsByte();
         try {
-            params = this.vote(Helper.TABLE_POST, id, vote);
+            params = vote(Helper.TABLE_POST, id, vt);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
-        if (params != null){
+        if (params != null) {
             Errors.correct(resp.getWriter(), params);
         }
     }

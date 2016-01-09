@@ -57,7 +57,7 @@ public final class DBHelper implements Helper {
     public Connection getConnection() throws SQLException {
         return mBasicDataSource.getConnection();
     }
-    
+
     @Override
     public <T> T runTypedQuery(Connection connection, String sql, TResultHandler<T> tHandler) throws SQLException {
         try (Statement statement = connection.createStatement();

@@ -28,7 +28,7 @@ public class Close extends BaseServlet {
          */
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         try {
-            toggleField(Helper.TABLE_THREAD,params.get("thread").getAsLong(),"isClosed", true);
+            toggleField(Helper.TABLE_THREAD, params.get("thread").getAsLong(), "isClosed", true);
         } catch (SQLException e) {
             e.printStackTrace();
         }

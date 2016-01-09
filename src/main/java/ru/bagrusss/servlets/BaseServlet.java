@@ -8,6 +8,7 @@ import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Helper;
 
 import javax.servlet.http.HttpServlet;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Logger;
@@ -40,7 +41,7 @@ public class BaseServlet extends HttpServlet {
     protected static final String FOLLOWER_EMAIL = "follower_email";
     protected static final String FOLLOWING_EMAIL = "following_email";
 
-    protected Logger logger = Logger.getLogger(this.getClass().getName());
+    protected static Logger logger = Logger.getLogger(BaseServlet.class.getName());
 
     @Nullable
     protected JsonObject getUserDetails(String email, boolean isFull) throws SQLException {

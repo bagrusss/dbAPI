@@ -19,9 +19,6 @@ public class Restore extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        /*
-            UPDATE `Thread` SET isDeleted = 0 WHERE id =?;
-         */
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         try {
             long id = params.get("thread").getAsLong();

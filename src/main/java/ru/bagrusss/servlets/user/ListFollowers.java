@@ -37,10 +37,11 @@ public class ListFollowers extends BaseServlet {
            on f.follower_email=u.email where u.email="example2@mail.ru";
          */
         String parameter = req.getParameter("user");
-        StringBuilder sql = new StringBuilder("SELECT u.email FROM")
-                .append(Helper.TABLE_USER).append("u ")
-                .append("INNER JOIN")
+        StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN ")
+                .append("u.email FROM")
                 .append(Helper.TABLE_FOLLOWERS).append("f ")
+                .append("INNER JOIN")
+                .append(Helper.TABLE_USER).append("u ")
                 .append("ON f.following_email=u.email ")
                 .append("WHERE f.follower_email=").append('\'')
                 .append(parameter).append("\' ");
@@ -57,7 +58,7 @@ public class ListFollowers extends BaseServlet {
         try {
             mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
                 while (rs.next()) {
-                    followers.add(getUserDetails(rs.getString("email"), true));
+                    followers.add(getUserDetails(rs.getString(1), true));
                 }
             });
         } catch (SQLException e) {

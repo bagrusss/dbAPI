@@ -20,7 +20,6 @@ public class ListUsers extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-        //по-хорошему параметры нужно проверять regexp'ами
         String param = req.getParameter("forum");
         /*
             SELECT * FROM `User` u JOIN `Forum` f

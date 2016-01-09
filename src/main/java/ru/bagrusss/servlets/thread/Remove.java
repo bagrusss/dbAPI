@@ -2,6 +2,7 @@ package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
+import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -13,6 +14,7 @@ import java.sql.SQLException;
 /**
  * Created by vladislav
  */
+
 public class Remove extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/thread/remove/";
 
@@ -25,9 +27,9 @@ public class Remove extends BaseServlet {
         try {
             long id = params.get("thread").getAsLong();
             mHelper.runUpdate(mHelper.getConnection(),
-                    "UPDATE `Thread` SET posts=0, isDeleted=1 WHERE id=" + id);
+                    "UPDATE " + Helper.TABLE_THREAD + " SET posts=0, isDeleted=1 WHERE id=" + id);
             mHelper.runUpdate(mHelper.getConnection(),
-                    "UPDATE `Post` SET isDeleted = 1 WHERE thread_id =" + id);
+                    "UPDATE " + Helper.TABLE_POST + " SET isDeleted=1 WHERE thread_id=" + id);
         } catch (SQLException e) {
             e.printStackTrace();
         }

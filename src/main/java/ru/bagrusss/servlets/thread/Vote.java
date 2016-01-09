@@ -27,10 +27,9 @@ public class Vote extends BaseServlet {
          */
         JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
         long id = params.get("thread").getAsLong();
-        byte vote = params.get("vote").getAsByte();
-
+        byte vt = params.get("vote").getAsByte();
         try {
-            params = this.vote(Helper.TABLE_THREAD, id, vote);
+            params = vote(Helper.TABLE_THREAD, id, vt);
         } catch (SQLException e) {
             e.printStackTrace();
         }

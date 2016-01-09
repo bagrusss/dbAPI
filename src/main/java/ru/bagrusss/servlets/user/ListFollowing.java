@@ -36,10 +36,11 @@ public class ListFollowing extends BaseServlet {
            SELECT `thread_id` FROM `Subscriptions` WHERE `user_email` = ?;
          */
         String parameter = req.getParameter("user");
-        StringBuilder sql = new StringBuilder("SELECT u.email FROM")
-                .append(Helper.TABLE_USER).append("u ")
-                .append("INNER JOIN")
+        StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN u.email FROM")
                 .append(Helper.TABLE_FOLLOWERS).append("f ")
+                .append("FORCE INDEX (following_follower) ")
+                .append("INNER JOIN")
+                .append(Helper.TABLE_USER).append("u ")
                 .append("ON f.follower_email=u.email ")
                 .append("WHERE f.following_email=").append('\'')
                 .append(parameter).append("\' ");
