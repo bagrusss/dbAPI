@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Clear extends BaseServlet {
@@ -25,8 +26,8 @@ public class Clear extends BaseServlet {
                     .append(',');
         }
         mSQLBuilder.replace(mSQLBuilder.length() - 2, mSQLBuilder.length(), "");
-        try {
-            mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
+        try(Connection connection = mHelper.getConnection()) {
+            mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_USER)
                     .append("(`id` INT NOT NULL AUTO_INCREMENT, ")
@@ -39,7 +40,7 @@ public class Clear extends BaseServlet {
                     .append("UNIQUE INDEX `Name_id` (`name`,`id`), ")
                     .append("UNIQUE INDEX `id_UNIQUE` (`id`) ) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
-            mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
+            mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_FORUM)
                     .append("(`id` INT NOT NULL AUTO_INCREMENT,")
@@ -50,7 +51,7 @@ public class Clear extends BaseServlet {
                     .append("UNIQUE INDEX `Name_UNIQUE` (`name`),")
                     .append("UNIQUE INDEX `id_UNIQUE` (`id`)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
-            mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
+            mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_THREAD)
                     .append("(`id` INT NOT NULL AUTO_INCREMENT,")
@@ -70,7 +71,7 @@ public class Clear extends BaseServlet {
                     .append("INDEX `UserEmail_date` (`user_email`, `date`), ")
                     .append("INDEX `Forum_date` (`forum`, `date`)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
-            mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
+            mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_POST)
                     .append("(`id` INT NOT NULL AUTO_INCREMENT,")
@@ -93,7 +94,7 @@ public class Clear extends BaseServlet {
                     .append("INDEX `ForumShortName_Date` (`forum_short_name`, `date`), ") //для post/List
                     .append("INDEX `ForumShortName_UserEmail` (`forum_short_name`, `user_email`)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
-            mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
+            mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_FOLLOWERS)
                     .append("(`follower_email` VARCHAR(50) NOT NULL,")
@@ -101,16 +102,14 @@ public class Clear extends BaseServlet {
                     .append("PRIMARY KEY (`follower_email`, `following_email`), ")
                     .append("UNIQUE KEY following_follower (`following_email`, `follower_email`)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
-            mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
+            mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_SUBSCRIPTIONS)
                     .append("(`user_email` VARCHAR(50) NOT NULL,")
                     .append("`thread_id` INT NOT NULL,")
                     .append(" PRIMARY KEY (`user_email`, `thread_id`))")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
-            mHelper.runUpdate(mHelper.getConnection(), mSQLBuilder.toString());
-            //TODO настроить в mysql на виртуалке
-            //mHelper.runUpdate(mHelper.getConnection(), "SET sql_mode = 'NO_UNSIGNED_SUBTRACTION'");
+            mHelper.runUpdate(connection, mSQLBuilder.toString());
         } catch (SQLException e) {
             e.printStackTrace();
         }

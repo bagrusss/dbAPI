@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by vladislav
@@ -17,12 +19,11 @@ public final class DBHelper implements Helper {
     private static final String DB_PASS = "tp_user2015";
 
     private static final int MAX_OPEN_PREPARED_STATEMENTS = 120;
+    private static final int MIN_CONNECTIONS = 5;
+    private static final int MAX_CONNECTIONS = 8;
+    private static final Logger LOGGER = Logger.getLogger(DBHelper.class.getName());
     private static DBHelper mDBHelper;
     private final BasicDataSource mBasicDataSource;
-
-    private static final int MIN_CONNECTIONS = 12;
-    private static final int MAX_CONNECTIONS = 12;
-
 
     private DBHelper() {
         mBasicDataSource = new BasicDataSource();
@@ -55,6 +56,10 @@ public final class DBHelper implements Helper {
 
     @Override
     public Connection getConnection() throws SQLException {
+        int active = mBasicDataSource.getNumActive();
+        if (mBasicDataSource.getNumActive() > 4) {
+            LOGGER.log(Level.INFO, "More than 4 connettions " + active);
+        }
         return mBasicDataSource.getConnection();
     }
 
@@ -63,8 +68,6 @@ public final class DBHelper implements Helper {
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             return tHandler.handle(resultSet);
-        } finally {
-            connection.close();
         }
     }
 
@@ -78,8 +81,6 @@ public final class DBHelper implements Helper {
             try (ResultSet resultSet = preparedStatement.executeQuery(sql)) {
                 return tHandler.handle(resultSet);
             }
-        } finally {
-            connection.close();
         }
     }
 
@@ -88,8 +89,6 @@ public final class DBHelper implements Helper {
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             resultHandlet.handle(resultSet);
-        } finally {
-            connection.close();
         }
     }
 
@@ -104,19 +103,15 @@ public final class DBHelper implements Helper {
             ResultSet resultSet = preparedStatement.executeQuery();
             result.handle(resultSet);
             resultSet.close();
-        } finally {
-            connection.close();
         }
     }
 
     @Override
     public int runUpdate(@NotNull Connection connection, String sql) throws SQLException {
-        int updated = 0;
+        int updated;
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
             updated = statement.getUpdateCount();
-        } finally {
-            connection.close();
         }
         return updated;
     }
@@ -130,8 +125,6 @@ public final class DBHelper implements Helper {
                 preparedStatement.setObject(i++, par);
             }
             res = preparedStatement.executeUpdate();
-        } finally {
-            connection.close();
         }
         return res;
     }
@@ -144,11 +137,8 @@ public final class DBHelper implements Helper {
             try (ResultSet res = statement.getGeneratedKeys()) {
                 if (res.next()) {
                     id = res.getLong(1);
-                    //res.moveToInsertRow();
                 }
             }
-        } finally {
-            connection.close();
         }
         return id;
     }
@@ -166,8 +156,6 @@ public final class DBHelper implements Helper {
                 if (result.next())
                     id = result.getLong(1);
             }
-        } finally {
-            connection.close();
         }
         return id;
     }
@@ -183,8 +171,6 @@ public final class DBHelper implements Helper {
             try (ResultSet result = preparedStatement.getGeneratedKeys()) {
                 gk.handle(result);
             }
-        } finally {
-            connection.close();
         }
     }
 }

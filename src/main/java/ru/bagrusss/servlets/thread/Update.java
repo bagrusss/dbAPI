@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class Update extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         long id = params.get("thread").getAsLong();
         /*
             UPDATE `Thread` SET `message`=?, `slug`=? WHERE id =?;
@@ -32,10 +33,10 @@ public class Update extends BaseServlet {
         sqlParams.add(params.get("slug").getAsString());
         sqlParams.add(id);
         JsonObject result = null;
-        try {
+        try (Connection connection = mHelper.getConnection()) {
             String sql = "UPDATE `Thread` SET `message`=?, `slug`=? WHERE id =?";
-            mHelper.runPreparedUpdate(mHelper.getConnection(), sql, sqlParams);
-            result = getThreadDetails(id);
+            mHelper.runPreparedUpdate(connection, sql, sqlParams);
+            result = getThreadDetails(connection, id);
         } catch (SQLException e) {
             e.printStackTrace();
         }

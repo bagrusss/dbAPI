@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +28,14 @@ public class Subscrabe extends BaseServlet {
             INSERT IGNORE `Subscriptions` (`user_email`, `thread_id`) VALUES (?, ?)
          */
 
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         List<Object> sqlParams = new ArrayList<>(2);
         sqlParams.add(params.get("user").getAsString());
         sqlParams.add(params.get("thread").getAsInt());
         StringBuilder sql = new StringBuilder("INSERT IGNORE ").append(Helper.TABLE_SUBSCRIPTIONS)
                 .append("VALUES (?, ?)");
-        try {
-            mHelper.runPreparedUpdate(mHelper.getConnection(), sql.toString(), sqlParams);
+        try (Connection connection = mHelper.getConnection()) {
+            mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams);
         } catch (SQLException e) {
             e.printStackTrace();
         }

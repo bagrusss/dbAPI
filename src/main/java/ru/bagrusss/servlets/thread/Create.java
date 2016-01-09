@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,7 @@ public class Create extends BaseServlet {
                 .append(Helper.TABLE_THREAD)
                 .append("(`forum`, `title`, `slug`, `user_email`, `date`, `message`, `isClosed`, `isDeleted`) ")
                 .append("VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         List<Object> sqlParams = new ArrayList<>(8);
         try {
             sqlParams.add(params.get("forum").getAsString());
@@ -48,8 +48,8 @@ public class Create extends BaseServlet {
             resp.setStatus(HttpServletResponse.SC_OK);
             Errors.incorrecRequest(resp.getWriter());
         }
-        try {
-            long id = mHelper.preparedInsertAndGetKeys(mHelper.getConnection(), sql.toString(), sqlParams);
+        try (Connection connection = mHelper.getConnection()) {
+            long id = mHelper.preparedInsertAndGetKeys(connection, sql.toString(), sqlParams);
             params.addProperty("id", id);
         } catch (SQLException e) {
             e.printStackTrace();

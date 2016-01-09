@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class Unfollow extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
 
         /*
             DELETE FROM `Followers` WHERE follower_email = ? AND following_email = ?;
@@ -40,15 +41,15 @@ public class Unfollow extends BaseServlet {
         sqlParams.add(email = params.get("followee").getAsString());
         sqlParams.add(params.get("follower").getAsString());
         JsonObject res = null;
-        try {
+        try (Connection connection = mHelper.getConnection()) {
             StringBuilder sql = new StringBuilder("DELETE FROM")
                     .append(Helper.TABLE_FOLLOWERS).append("WHERE follower_email = ? AND following_email = ?");
-            if (mHelper.runPreparedUpdate(mHelper.getConnection(), sql.toString(), sqlParams) == 0) {
+            if (mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams) == 0) {
                 resp.setStatus(HttpServletResponse.SC_OK);
                 Errors.notFound(resp.getWriter());
                 return;
             }
-            res = getUserDetails(email, true);
+            res = getUserDetails(connection, email, true);
         } catch (SQLException e) {
             e.printStackTrace();
         }

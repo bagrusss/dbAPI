@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class Follow extends BaseServlet {
            SELECT `thread_id` FROM `Subscriptions` WHERE `user_email` = ?; индекс (user_email, id)
          */
 
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         List<Object> sqlParams = new ArrayList<>(2);
         String user;
         sqlParams.add(user = params.get("followee").getAsString());
@@ -46,15 +47,13 @@ public class Follow extends BaseServlet {
         StringBuilder sql = new StringBuilder("INSERT IGNORE INTO ").append(Helper.TABLE_FOLLOWERS)
                 .append("VALUES (?, ?)");
         JsonObject result = null;
-        try {
-            mHelper.runPreparedUpdate(mHelper.getConnection(), sql.toString(), sqlParams);
-            result = getUserDetails(user, true);
+        try (Connection connection = mHelper.getConnection()) {
+            mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams);
+            result = getUserDetails(connection, user, true);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), result);
-
-
     }
 }

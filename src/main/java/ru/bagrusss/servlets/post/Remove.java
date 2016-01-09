@@ -16,20 +16,20 @@ import java.sql.Statement;
 /**
  * Created by vladislav
  */
+@SuppressWarnings("SqlNoDataSourceInspection")
 public class Remove extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/post/remove/";
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         //индекс по id, thread_id ?
         long id = params.get("post").getAsLong();
         /*
               UPDATE `Post` SET `isDeleted`=1 WHERE `id`=?;
          */
-        try {
-            Connection connection = mHelper.getConnection();
-            toggleField(Helper.TABLE_POST, id, "isDeleted", true);
+        try(Connection connection = mHelper.getConnection()) {
+            toggleField(connection, Helper.TABLE_POST, id, "isDeleted", true);
             mHelper.runQuery(connection, "SELECT `thread_id` FROM "
                     + Helper.TABLE_POST + " Where id=" + id, rs -> {
                 if (rs.next())

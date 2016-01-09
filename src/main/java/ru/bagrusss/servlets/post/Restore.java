@@ -21,14 +21,13 @@ public class Restore extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         long id = params.get("post").getAsLong();
         /*
               UPDATE `Post` SET `isDeleted`=0 WHERE `id`=?;
          */
-        try {
-            toggleField(Helper.TABLE_POST, id, "isDeleted", false);
-            Connection connection = mHelper.getConnection();
+        try (Connection connection = mHelper.getConnection()) {
+            toggleField(connection, Helper.TABLE_POST, id, "isDeleted", false);
             mHelper.runQuery(connection, "SELECT `thread_id` FROM Post Where id=" + id, rs -> {
                 if (rs.next())
                     try (Statement st = connection.createStatement()) {

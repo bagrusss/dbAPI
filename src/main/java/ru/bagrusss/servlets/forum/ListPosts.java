@@ -10,12 +10,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * Created by vladislav
  */
 
+@SuppressWarnings("OverlyComplexMethod")
 public class ListPosts extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/forum/listPosts/";
 
@@ -25,7 +27,6 @@ public class ListPosts extends BaseServlet {
         /*
             SELECT *, `likes`-`dislikes` points FROM `Posts` WHERE `forum_short_name` = ?
          */
-
         String[] related = req.getParameterValues("related");
         boolean user = false;
         boolean forum = false;
@@ -68,11 +69,11 @@ public class ListPosts extends BaseServlet {
             sql.append(" LIMIT ").append(par);
         }
         JsonArray result = new JsonArray();
-        try {
+        try (Connection connection = mHelper.getConnection()) {
             final boolean finalThread = thread;
             final boolean finalUser = user;
             final boolean finalForum = forum;
-            mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
+            mHelper.runQuery(connection, sql.toString(), rs -> {
                 while (rs.next()) {
                     JsonObject pst = new JsonObject();
                     pst.addProperty("id", rs.getLong(1));
@@ -83,15 +84,15 @@ public class ListPosts extends BaseServlet {
                     pst.addProperty("isSpam", rs.getBoolean("isSpam"));
                     pst.addProperty("message", rs.getString("message"));
                     if (finalThread)
-                        pst.add("thread", getThreadDetails(rs.getLong("thread_id")));
+                        pst.add("thread", getThreadDetails(connection, rs.getLong("thread_id")));
                     else pst.addProperty("thread", rs.getLong("thread_id"));
                     pst.addProperty("date", rs.getString("pd"));
                     if (!finalUser)
                         pst.addProperty("user", rs.getString("user_email"));
-                    else pst.add("user", getUserDetails(rs.getString("user_email"), true));
+                    else pst.add("user", getUserDetails(connection, rs.getString("user_email"), true));
                     if (!finalForum)
                         pst.addProperty("forum", rs.getString("forum_short_name"));
-                    else pst.add("forum", getForumDetails(rs.getString("forum_short_name")));
+                    else pst.add("forum", getForumDetails(connection, rs.getString("forum_short_name")));
                     pst.addProperty("dislikes", rs.getLong("dislikes"));
                     pst.addProperty("likes", rs.getLong("likes"));
                     pst.addProperty("points", rs.getLong("points"));

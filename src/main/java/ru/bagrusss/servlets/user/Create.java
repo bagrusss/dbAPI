@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class Create extends BaseServlet {
 
             SELECT * FROM `User` WHERE `email` = ?;
         */
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         List<Object> sqlParams = new ArrayList<>(5);
 
         sqlParams.add(params.get(EMAIL).getAsString());
@@ -42,9 +43,9 @@ public class Create extends BaseServlet {
         sqlParams.add(params.has(IS_ANNONIMOUS) && params.get(IS_ANNONIMOUS).getAsBoolean());
 
         long id = 0;
-        try {
+        try (Connection connection = mHelper.getConnection()) {
             String sql = "INSERT IGNORE INTO `User` (`email`, `username`, `about`, `name`, `isAnonymous`) VALUES (?, ?, ?, ?, ?);";
-            id = mHelper.preparedInsertAndGetKeys(mHelper.getConnection(), sql, sqlParams);
+            id = mHelper.preparedInsertAndGetKeys(connection, sql, sqlParams);
             if (id == 0) {
                 resp.setStatus(HttpServletResponse.SC_OK);
                 Errors.userAlreadyExists(resp.getWriter());

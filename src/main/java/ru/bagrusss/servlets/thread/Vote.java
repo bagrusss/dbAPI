@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -25,11 +26,11 @@ public class Vote extends BaseServlet {
             UPDATE `Thread` SET `likes`=`likes`+1 WHERE `id`=?
             UPDATE `Thread` SET `dislikes`=`dislikes`+1 WHERE `id`=?
          */
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         long id = params.get("thread").getAsLong();
         byte vt = params.get("vote").getAsByte();
-        try {
-            params = vote(Helper.TABLE_THREAD, id, vt);
+        try (Connection connection = mHelper.getConnection()) {
+            params = vote(connection, Helper.TABLE_THREAD, id, vt);
         } catch (SQLException e) {
             e.printStackTrace();
         }

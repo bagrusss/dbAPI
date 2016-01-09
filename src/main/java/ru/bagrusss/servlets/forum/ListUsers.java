@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -48,12 +49,12 @@ public class ListUsers extends BaseServlet {
             sql.append(" LIMIT ").append(param);
         }
         JsonArray users = new JsonArray();
-        try {
-            mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
+        try (Connection connection = mHelper.getConnection()) {
+            mHelper.runQuery(connection, sql.toString(), rs -> {
                 while (rs.next()) {
                     String user = rs.getString(1);
                     if (user != null)
-                        users.add(getUserDetails(user, true));
+                        users.add(getUserDetails(connection, user, true));
                 }
             });
         } catch (SQLException e) {

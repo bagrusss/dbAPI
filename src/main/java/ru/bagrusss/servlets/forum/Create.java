@@ -25,7 +25,7 @@ public class Create extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         resp.setCharacterEncoding(DEFAULT_ENCODING);
 
         StringBuilder sql = new StringBuilder();
@@ -41,8 +41,8 @@ public class Create extends BaseServlet {
         sqlParams.add(shortname);
         sqlParams.add(user);
         long id = 0;
-        try {
-            Connection connection = mHelper.getConnection();
+        try (Connection connection = mHelper.getConnection()) {
+
             id = mHelper.runTypedQuery(connection, "SELECT `id` FROM " + Helper.TABLE_FORUM
                             + "WHERE `short_name`= \'" + shortname + '\'',
                     rs -> rs.next() ? rs.getLong(1) :

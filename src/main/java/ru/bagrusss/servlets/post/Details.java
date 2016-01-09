@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -29,8 +30,8 @@ public class Details extends BaseServlet {
          */
         long id = Long.valueOf(req.getParameter("post"));
         JsonObject result = null;
-        try {
-            result = getPostDetails(id);
+        try (Connection connection = mHelper.getConnection()) {
+            result = getPostDetails(connection, id);
         } catch (SQLException e) {
             e.printStackTrace();
         }

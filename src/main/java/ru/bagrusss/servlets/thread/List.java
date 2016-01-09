@@ -9,7 +9,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 /**
  * Created by vladislav
@@ -36,14 +38,14 @@ public class List extends BaseServlet {
         String par = req.getParameter("user");
         if (par != null) {
             sql.append("`user_email`=\'")
-                    .append(par);
+                    .append(par).append('\'');
         } else {
             sql.append("`forum`= \'")
-                    .append(req.getParameter("forum"));
+                    .append(req.getParameter("forum")).append('\'');
         }
         par = req.getParameter("since");
         if (par != null)
-            sql.append("\' AND `date` >= \'")
+            sql.append(" AND `date` >= \'")
                     .append(par).append('\'');
         par = req.getParameter("order");
         if (par != null)
@@ -54,14 +56,14 @@ public class List extends BaseServlet {
             sql.append(" LIMIT ").append(par);
         resp.setStatus(HttpServletResponse.SC_OK);
         JsonArray threads = new JsonArray();
-        try {
-            mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
+        try (Connection connection = mHelper.getConnection()){
+            mHelper.runQuery(connection, sql.toString(), rs -> {
                 while (rs.next()) {
                     threads.add(parseThread(rs, null));
                 }
             });
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, sql.toString());
         }
         resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), threads);

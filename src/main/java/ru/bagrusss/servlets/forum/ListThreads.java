@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -65,10 +66,10 @@ public class ListThreads extends BaseServlet {
             sql.append(" LIMIT ").append(par);
         }
         JsonArray result = new JsonArray();
-        try {
+        try (Connection connection = mHelper.getConnection()) {
             final boolean finalUser = user;
             final boolean finalForum = forum;
-            mHelper.runQuery(mHelper.getConnection(), sql.toString(), rs -> {
+            mHelper.runQuery(connection, sql.toString(), rs -> {
                 while (rs.next()) {
                     JsonObject thr = new JsonObject();
                     thr.addProperty("id", rs.getLong(1));
@@ -81,10 +82,10 @@ public class ListThreads extends BaseServlet {
                     thr.addProperty("date", rs.getString("td"));
                     if (!finalUser)
                         thr.addProperty("user", rs.getString("user_email"));
-                    else thr.add("user", getUserDetails(rs.getString("user_email"), true));
+                    else thr.add("user", getUserDetails(connection, rs.getString("user_email"), true));
                     if (!finalForum)
                         thr.addProperty("forum", rs.getString("forum"));
-                    else thr.add("forum", getForumDetails(rs.getString("forum")));
+                    else thr.add("forum", getForumDetails(connection, rs.getString("forum")));
                     thr.addProperty("dislikes", rs.getLong("dislikes"));
                     thr.addProperty("likes", rs.getLong("likes"));
                     thr.addProperty("points", rs.getLong("points"));

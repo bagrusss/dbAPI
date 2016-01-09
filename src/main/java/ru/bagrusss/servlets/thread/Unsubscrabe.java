@@ -9,8 +9,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Created by vladislav on 19.10.15.
@@ -25,14 +26,14 @@ public class Unsubscrabe extends BaseServlet {
          */
         resp.setCharacterEncoding(DEFAULT_ENCODING);
 
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         java.util.List<Object> sqlParams = new ArrayList<>(2);
         sqlParams.add(params.get("user").getAsString());
         sqlParams.add(params.get("thread").getAsInt());
         StringBuilder sql = new StringBuilder("DELETE FROM").append(Helper.TABLE_SUBSCRIPTIONS)
                 .append("WHERE `user_email` = ? AND `thread_id` = ?");
-        try {
-            mHelper.runPreparedUpdate(mHelper.getConnection(), sql.toString(), sqlParams);
+        try (Connection connection = mHelper.getConnection()) {
+            mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams);
         } catch (SQLException e) {
             e.printStackTrace();
         }

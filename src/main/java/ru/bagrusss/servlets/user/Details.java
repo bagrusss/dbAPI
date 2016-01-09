@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -22,18 +23,15 @@ public class Details extends BaseServlet {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         String email = req.getParameter(USER);
 
-        /* SELECT * FROM `User` WHERE `email` = ?;
-
+        /*
+           SELECT * FROM `User` WHERE `email` = ?;
            SELECT `following_email` FROM `Followers` WHERE `follower_email` = ?;
-
            SELECT `follower_email` FROM `Followers` WHERE `following_email` =?;
-
            SELECT `thread_id` FROM `Subscriptions` WHERE `user_email` = ?; индекс (user_email, id)
-
            */
         JsonObject result = null;
-        try {
-            result = getUserDetails(email, true);
+        try (Connection connection = mHelper.getConnection()) {
+            result = getUserDetails(connection, email, true);
         } catch (SQLException e) {
             e.printStackTrace();
         }

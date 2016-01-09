@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 
@@ -26,9 +27,10 @@ public class Close extends BaseServlet {
         /*
             UPDATE `Thread` SET isClosed = 1 WHERE id =?;
          */
-        JsonObject params = mGson.fromJson(req.getReader(), JsonObject.class);
-        try {
-            toggleField(Helper.TABLE_THREAD, params.get("thread").getAsLong(), "isClosed", true);
+        JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
+        try (Connection connection = mHelper.getConnection()) {
+            toggleField(connection, Helper.TABLE_THREAD,
+                    params.get("thread").getAsLong(), "isClosed", true);
         } catch (SQLException e) {
             e.printStackTrace();
         }

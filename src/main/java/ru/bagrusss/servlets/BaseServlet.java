@@ -17,13 +17,13 @@ import java.util.logging.Logger;
  * Created by vladislav
  */
 
-@SuppressWarnings({"ConstantNamingConvention", "unused"})
+
+@SuppressWarnings("ConstantNamingConvention")
 public class BaseServlet extends HttpServlet {
 
-    protected static final String BASE_URL = "/db/api";
-    protected final Helper mHelper = DBHelper.getInstance();
-    protected static final Gson mGson = new Gson();
     public static final String DEFAULT_ENCODING = "UTF-8";
+    protected static final String BASE_URL = "/db/api";
+    protected final Gson mGSON = new Gson();
     //user
     protected static final String USERNAME = "username";
     protected static final String USER = "user";
@@ -32,19 +32,17 @@ public class BaseServlet extends HttpServlet {
     protected static final String NAME = "name";
     protected static final String ID = "id";
     protected static final String IS_ANNONIMOUS = "isAnonymous";
-
     protected static final String FOLLOWING = "following";
     protected static final String FOLLOWERS = "followers";
     protected static final String SUBSCTIPTIOS = "subscriptions";
-
     //followers
     protected static final String FOLLOWER_EMAIL = "follower_email";
     protected static final String FOLLOWING_EMAIL = "following_email";
-
     protected static Logger logger = Logger.getLogger(BaseServlet.class.getName());
+    protected final Helper mHelper = DBHelper.getInstance();
 
     @Nullable
-    protected JsonObject getUserDetails(String email, boolean isFull) throws SQLException {
+    protected JsonObject getUserDetails(Connection connection, String email, boolean isFull) throws SQLException {
 
         /* SELECT * FROM `User` WHERE `email` = ?;
 
@@ -59,8 +57,7 @@ public class BaseServlet extends HttpServlet {
                 " WHERE " + "`email` = \'" + email + '\'';
         JsonObject result = new JsonObject();
         final boolean[] success = {false};
-
-        mHelper.runQuery(mHelper.getConnection(), sql, rs -> {
+        mHelper.runQuery(connection, sql, rs -> {
             if (rs.next()) {
                 result.addProperty(ABOUT, rs.getString(ABOUT));
                 result.addProperty(NAME, rs.getString(NAME));
@@ -79,9 +76,9 @@ public class BaseServlet extends HttpServlet {
             JsonArray following = null;
             JsonArray subscriptions = null;
             try {
-                followers = getListByEmail(Helper.TABLE_FOLLOWERS, FOLLOWING_EMAIL, FOLLOWER_EMAIL, email);
-                following = getListByEmail(Helper.TABLE_FOLLOWERS, FOLLOWER_EMAIL, FOLLOWING_EMAIL, email);
-                subscriptions = getSubscriptions(email);
+                followers = getListByEmail(connection, Helper.TABLE_FOLLOWERS, FOLLOWING_EMAIL, FOLLOWER_EMAIL, email);
+                following = getListByEmail(connection, Helper.TABLE_FOLLOWERS, FOLLOWER_EMAIL, FOLLOWING_EMAIL, email);
+                subscriptions = getSubscriptions(connection, email);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -92,14 +89,13 @@ public class BaseServlet extends HttpServlet {
         return result;
     }
 
-    //for /user/details
-    protected JsonArray getListByEmail(String table, String what, String whereField, String email) throws SQLException {
+    protected JsonArray getListByEmail(Connection connection, String table, String what, String whereField, String email) throws SQLException {
         JsonArray res = new JsonArray();
         String sql = "SELECT " + what +
                 " FROM " + table +
                 " WHERE " + whereField + " = \'" +
                 email + '\'';
-        mHelper.runQuery(mHelper.getConnection(), sql, rs -> {
+        mHelper.runQuery(connection, sql, rs -> {
             while (rs.next()) {
                 res.add(rs.getString(1));
             }
@@ -107,13 +103,13 @@ public class BaseServlet extends HttpServlet {
         return res;
     }
 
-    protected JsonArray getSubscriptions(String user) throws SQLException {
+    protected JsonArray getSubscriptions(Connection connection, String user) throws SQLException {
         JsonArray res = new JsonArray();
         String sql = "SELECT " + "`thread_id`" +
                 " FROM " + Helper.TABLE_SUBSCRIPTIONS +
                 " WHERE " + "`user_email`" + " = " +
                 '\'' + user + '\'';
-        mHelper.runQuery(mHelper.getConnection(), sql, rs -> {
+        mHelper.runQuery(connection, sql, rs -> {
             while (rs.next()) {
                 res.add(rs.getInt(1));
             }
@@ -145,23 +141,23 @@ public class BaseServlet extends HttpServlet {
         return result;
     }
 
-    protected long toggleField(String table, long id, String field, boolean value) throws SQLException {
+    protected long toggleField(Connection connection, String table, long id, String field, boolean value) throws SQLException {
         String sql = "UPDATE " +
                 table +
                 "SET " + field +
                 " = " + value +
                 " WHERE id = " + id;
-        return mHelper.updateAndGetID(mHelper.getConnection(), sql);
+        return mHelper.updateAndGetID(connection, sql);
     }
 
-    protected JsonObject getThreadDetails(long id) throws SQLException {
+    protected JsonObject getThreadDetails(Connection connection, long id) throws SQLException {
         String sql = "SELECT *, likes-CAST(dislikes AS SIGNED) points, " +
                 "DATE_FORMAT(`date`, '%Y-%m-%d %H:%i:%s') dt " +
                 "FROM" +
                 Helper.TABLE_THREAD +
                 "WHERE `id` = " + id;
         JsonObject reslult = new JsonObject();
-        mHelper.runQuery(mHelper.getConnection(), sql, rs -> {
+        mHelper.runQuery(connection, sql, rs -> {
             if (rs.next()) {
                 parseThread(rs, reslult);
             }
@@ -192,7 +188,7 @@ public class BaseServlet extends HttpServlet {
     }
 
     @Nullable
-    protected JsonObject getPostDetails(long id) throws SQLException {
+    protected JsonObject getPostDetails(Connection connection, long id) throws SQLException {
         String sql = "SELECT *, likes-CAST(dislikes AS SIGNED) points, " +
                 "DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd FROM" +
                 Helper.TABLE_POST +
@@ -200,7 +196,7 @@ public class BaseServlet extends HttpServlet {
                 id;
         JsonObject result = new JsonObject();
         final boolean[] isFound = {false};
-        mHelper.runQuery(mHelper.getConnection(), sql, rs -> {
+        mHelper.runQuery(connection, sql, rs -> {
             if (rs.next()) {
                 parsePost(rs, result);
                 isFound[0] = true;
@@ -210,7 +206,7 @@ public class BaseServlet extends HttpServlet {
     }
 
     @Nullable
-    protected JsonObject getForumDetails(String forum) throws SQLException {
+    protected JsonObject getForumDetails(Connection connection, String forum) throws SQLException {
         String sql = "SELECT * FROM" +
                 Helper.TABLE_FORUM +
                 "WHERE `short_name` = " + '\"' +
@@ -218,7 +214,7 @@ public class BaseServlet extends HttpServlet {
                 '\"';
         JsonObject result = new JsonObject();
         final boolean[] isFound = {false};
-        mHelper.runQuery(mHelper.getConnection(), sql, rs -> {
+        mHelper.runQuery(connection, sql, rs -> {
             if (rs.next()) {
                 result.addProperty("id", rs.getInt(1));
                 result.addProperty("short_name", forum);
@@ -231,7 +227,7 @@ public class BaseServlet extends HttpServlet {
     }
 
     @Nullable
-    protected JsonObject vote(String table, long id, byte value) throws SQLException {
+    protected JsonObject vote(Connection connection, String table, long id, byte value) throws SQLException {
         StringBuilder sql = new StringBuilder("UPDATE")
                 .append(table)
                 .append("SET ");
@@ -246,11 +242,11 @@ public class BaseServlet extends HttpServlet {
                 return null;
         }
         sql.append("+1 WHERE `id`=").append(id);
-        mHelper.runUpdate(mHelper.getConnection(), sql.toString());
+        mHelper.runUpdate(connection, sql.toString());
         JsonObject result;
         if (table.equals(Helper.TABLE_THREAD))
-            result = getThreadDetails(id);
-        else result = getPostDetails(id);
+            result = getThreadDetails(connection, id);
+        else result = getPostDetails(connection, id);
         return result;
     }
 }
