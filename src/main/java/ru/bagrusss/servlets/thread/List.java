@@ -26,10 +26,8 @@ public class List extends BaseServlet {
         /*
             SELECT *, likes-dislakes as points FROM `Thread` WHERE `forum` = ?;
             SELECT *, likes-dislakes as points FROM `Thread` WHERE `user_email` = ?;
-
             SELECT *, likes-dislakes as points FROM `Thread` WHERE `user_email` = ? AND `date` >= ?
                 ORDER BY `date` LIMIT ?;
-
          */
         StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
                 .append("DATE_FORMAT(`date`, '%Y-%m-%d %H:%i:%s') dt FROM")

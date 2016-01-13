@@ -1,6 +1,7 @@
 package ru.bagrusss.helpers;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -26,6 +27,7 @@ public interface Helper {
 
     void runQuery(@NotNull Connection connection, String sql, ResultHandler handler) throws SQLException;
 
+    @Nullable
     <T> T runTypedQuery(Connection conn, String sql, TResultHandler<T> tHandler) throws SQLException;
 
     <T> T runTypedPreparedQuery(Connection conn, String sql, List<?> params, TResultHandler<T> tHandler) throws SQLException;

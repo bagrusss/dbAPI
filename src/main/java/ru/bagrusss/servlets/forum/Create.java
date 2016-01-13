@@ -27,7 +27,6 @@ public class Create extends BaseServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-
         StringBuilder sql = new StringBuilder();
         List<Object> sqlParams = new ArrayList<>(3);
         String name = params.get("name").getAsString();

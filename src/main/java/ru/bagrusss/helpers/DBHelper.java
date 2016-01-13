@@ -2,6 +2,7 @@ package ru.bagrusss.helpers;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
 
 public final class DBHelper implements Helper {
 
-    private static final String DB_HOST = "jdbc:mysql://localhost:3306/tp_db?characterEncoding=utf8";
+    private static final String DB_HOST = "jdbc:mysql://localhost:3306/tp_db?characterEncoding=utf8&autoreconnect=true";
     private static final String DB_USER = "tp_user";
     private static final String DB_PASS = "tp_user2015";
 
@@ -63,6 +64,7 @@ public final class DBHelper implements Helper {
         return mBasicDataSource.getConnection();
     }
 
+    @Nullable
     @Override
     public <T> T runTypedQuery(Connection connection, String sql, TResultHandler<T> tHandler) throws SQLException {
         try (Statement statement = connection.createStatement();
@@ -118,7 +120,7 @@ public final class DBHelper implements Helper {
 
     @Override
     public int runPreparedUpdate(@NotNull Connection connection, String sql, List<?> params) throws SQLException {
-        int res = 0;
+        int res;
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             int i = 1;
             for (Object par : params) {

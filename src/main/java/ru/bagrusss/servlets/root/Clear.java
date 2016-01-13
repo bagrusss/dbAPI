@@ -32,12 +32,13 @@ public class Clear extends BaseServlet {
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_USER)
                     .append("(`id` INT NOT NULL AUTO_INCREMENT, ")
                     .append("`username` VARCHAR(50) DEFAULT NULL, ")
-                    .append("`name` VARCHAR(50), ")
+                    .append("`name` VARCHAR(30), ")
                     .append("`about` BLOB, ")
                     .append("`email` VARCHAR(50) NOT NULL, ")
                     .append("`isAnonymous` TINYINT(1) DEFAULT false,")
                     .append("PRIMARY KEY(`email`), ")
                     .append("UNIQUE INDEX `Name_id` (`name`,`id`), ")
+                    .append("UNIQUE index `Name_email_id` (`name`, `email`, `id`), ")
                     .append("UNIQUE INDEX `id_UNIQUE` (`id`) ) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(connection, mSQLBuilder.toString());

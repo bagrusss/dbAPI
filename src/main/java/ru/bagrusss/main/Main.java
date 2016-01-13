@@ -3,6 +3,8 @@ package ru.bagrusss.main;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.xml.XmlConfiguration;
 import ru.bagrusss.servlets.forum.ListPosts;
 import ru.bagrusss.servlets.forum.ListThreads;
 import ru.bagrusss.servlets.forum.ListUsers;
@@ -28,7 +30,17 @@ public class Main {
         if (args.length > 0) {
             port = Integer.valueOf(args[0]);
         }
-        Server server = new Server(port);
+        Server server = null;
+        try {
+            Resource conf = Resource.newResource("jetty.xml");
+            XmlConfiguration configuration = new XmlConfiguration(conf.getInputStream());
+            server = (Server) configuration.configure();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+
+
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
         contextHandler.addServlet(new ServletHolder(new Clear()), Clear.URL);
@@ -73,12 +85,12 @@ public class Main {
         server.setHandler(contextHandler);
         try {
             server.start();
+            try {
+                server.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            server.join();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

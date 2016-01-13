@@ -23,7 +23,6 @@ public class BaseServlet extends HttpServlet {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
     protected static final String BASE_URL = "/db/api";
-    protected final Gson mGSON = new Gson();
     //user
     protected static final String USERNAME = "username";
     protected static final String USER = "user";
@@ -39,29 +38,35 @@ public class BaseServlet extends HttpServlet {
     protected static final String FOLLOWER_EMAIL = "follower_email";
     protected static final String FOLLOWING_EMAIL = "following_email";
     protected static Logger logger = Logger.getLogger(BaseServlet.class.getName());
+    protected final Gson mGSON = new Gson();
     protected final Helper mHelper = DBHelper.getInstance();
+
+    protected JsonObject parseUserWithoutEmail(ResultSet rs, JsonObject result) throws SQLException{
+        result.addProperty(ID, rs.getInt(1));
+        result.addProperty(ABOUT, rs.getString(ABOUT));
+        result.addProperty(NAME, rs.getString(NAME));
+        result.addProperty(IS_ANNONIMOUS, rs.getBoolean(IS_ANNONIMOUS));
+        result.addProperty(USERNAME, rs.getString(USERNAME));
+        return result;
+    }
 
     @Nullable
     protected JsonObject getUserDetails(Connection connection, String email, boolean isFull) throws SQLException {
 
         /* SELECT * FROM `User` WHERE `email` = ?;
-
            SELECT `following_email` FROM `Followers` WHERE `follower_email` = ?;
-
            SELECT `follower_email` FROM `Followers` WHERE `following_email` =?;
-
            SELECT `thread_id` FROM `Subscriptions` WHERE `user_email` = ?; индекс (user_email, id)
-
            */
-        String sql = "SELECT * FROM " + Helper.TABLE_USER +
+        String sql = "SELECT id, username, name, about, email, isAnonymous FROM " + Helper.TABLE_USER +
                 " WHERE " + "`email` = \'" + email + '\'';
         JsonObject result = new JsonObject();
         final boolean[] success = {false};
         mHelper.runQuery(connection, sql, rs -> {
             if (rs.next()) {
+                result.addProperty(ID, rs.getInt(1));
                 result.addProperty(ABOUT, rs.getString(ABOUT));
                 result.addProperty(NAME, rs.getString(NAME));
-                result.addProperty(ID, rs.getInt(ID));
                 result.addProperty(EMAIL, rs.getString(EMAIL));
                 result.addProperty(IS_ANNONIMOUS, rs.getBoolean(IS_ANNONIMOUS));
                 result.addProperty(USERNAME, rs.getString(USERNAME));
@@ -117,6 +122,16 @@ public class BaseServlet extends HttpServlet {
         return res;
     }
 
+
+    protected long toggleField(Connection connection, String table, long id, String field, boolean value) throws SQLException {
+        String sql = "UPDATE " +
+                table +
+                "SET " + field +
+                " = " + value +
+                " WHERE id = " + id;
+        return mHelper.updateAndGetID(connection, sql);
+    }
+
     /**
      * @param rs ResultSet
      * @return return item with id from current in ResultSet
@@ -141,21 +156,11 @@ public class BaseServlet extends HttpServlet {
         return result;
     }
 
-    protected long toggleField(Connection connection, String table, long id, String field, boolean value) throws SQLException {
-        String sql = "UPDATE " +
-                table +
-                "SET " + field +
-                " = " + value +
-                " WHERE id = " + id;
-        return mHelper.updateAndGetID(connection, sql);
-    }
-
     protected JsonObject getThreadDetails(Connection connection, long id) throws SQLException {
-        String sql = "SELECT *, likes-CAST(dislikes AS SIGNED) points, " +
+        String sql = "SELECT id, likes, dislikes, message, title, slug, user_email, forum, " +
+                "isDeleted, isClosed, posts, likes-CAST(dislikes AS SIGNED) points, " +
                 "DATE_FORMAT(`date`, '%Y-%m-%d %H:%i:%s') dt " +
-                "FROM" +
-                Helper.TABLE_THREAD +
-                "WHERE `id` = " + id;
+                "FROM" + Helper.TABLE_THREAD + "WHERE `id` = " + id;
         JsonObject reslult = new JsonObject();
         mHelper.runQuery(connection, sql, rs -> {
             if (rs.next()) {
@@ -175,11 +180,11 @@ public class BaseServlet extends HttpServlet {
         result.addProperty("isHighlighted", rs.getBoolean("isHighlighted"));
         result.addProperty("isSpam", rs.getBoolean("isSpam"));
         result.addProperty("message", rs.getString("message"));
+        result.addProperty("likes", rs.getLong("likes"));
+        result.addProperty("dislikes", rs.getLong("dislikes"));
         result.addProperty("forum", rs.getString("forum_short_name"));
         result.addProperty("date", rs.getString("pd"));
         result.addProperty("user", rs.getString("user_email"));
-        result.addProperty("dislikes", rs.getLong("dislikes"));
-        result.addProperty("likes", rs.getLong("likes"));
         result.addProperty("points", rs.getLong("points"));
         long parent = rs.getLong("parent");
         result.addProperty("parent", parent == 0 ? null : parent);
@@ -189,7 +194,9 @@ public class BaseServlet extends HttpServlet {
 
     @Nullable
     protected JsonObject getPostDetails(Connection connection, long id) throws SQLException {
-        String sql = "SELECT *, likes-CAST(dislikes AS SIGNED) points, " +
+        String sql = "SELECT id, isApproved, isDeleted, isEdited, isHighlighted, isSpam, " +
+                "message, likes, dislikes, thread_id, user_email, forum_short_name, parent, " +
+                "likes-CAST(dislikes AS SIGNED) points, " +
                 "DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd FROM" +
                 Helper.TABLE_POST +
                 "WHERE `id`=" +
@@ -207,7 +214,7 @@ public class BaseServlet extends HttpServlet {
 
     @Nullable
     protected JsonObject getForumDetails(Connection connection, String forum) throws SQLException {
-        String sql = "SELECT * FROM" +
+        String sql = "SELECT `id`, `name`, `short_name`, user_email FROM" +
                 Helper.TABLE_FORUM +
                 "WHERE `short_name` = " + '\"' +
                 forum +
@@ -217,9 +224,9 @@ public class BaseServlet extends HttpServlet {
         mHelper.runQuery(connection, sql, rs -> {
             if (rs.next()) {
                 result.addProperty("id", rs.getInt(1));
-                result.addProperty("short_name", forum);
-                result.addProperty("name", rs.getString("name"));
-                result.addProperty("user", rs.getString("user_email"));
+                result.addProperty("name", rs.getString(2));
+                result.addProperty("short_name", rs.getString(3));
+                result.addProperty("user", rs.getString(4));
                 isFound[0] = true;
             }
         });
@@ -231,16 +238,10 @@ public class BaseServlet extends HttpServlet {
         StringBuilder sql = new StringBuilder("UPDATE")
                 .append(table)
                 .append("SET ");
-        switch (value) {
-            case 1:
-                sql.append("`likes`=`likes` ");
-                break;
-            case -1:
-                sql.append("`dislikes`=`dislikes` ");
-                break;
-            default:
-                return null;
-        }
+        if (value == 1)
+            sql.append("`likes`=`likes` ");
+        else
+            sql.append("`dislikes`=`dislikes` ");
         sql.append("+1 WHERE `id`=").append(id);
         mHelper.runUpdate(connection, sql.toString());
         JsonObject result;
