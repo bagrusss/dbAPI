@@ -2,7 +2,6 @@ package ru.bagrusss.helpers;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 import java.util.List;
@@ -64,7 +63,6 @@ public final class DBHelper implements Helper {
         return mBasicDataSource.getConnection();
     }
 
-    @Nullable
     @Override
     public <T> T runTypedQuery(Connection connection, String sql, TResultHandler<T> tHandler) throws SQLException {
         try (Statement statement = connection.createStatement();

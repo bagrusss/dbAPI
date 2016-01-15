@@ -37,7 +37,7 @@ public class ListFollowing extends BaseServlet {
          */
         String parameter = req.getParameter("user");
         StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN u.email FROM")
-                .append(Helper.TABLE_USER).append("u FORCE INDEX (Name_id) ")
+                .append(Helper.TABLE_USER).append("u FORCE INDEX (Name_email_id) ") //TODO!!!
                 .append("INNER JOIN")
                 .append(Helper.TABLE_FOLLOWERS).append("f FORCE INDEX (primary) ")
                 .append("ON f.follower_email=u.email ")
@@ -48,7 +48,7 @@ public class ListFollowing extends BaseServlet {
             sql.append(" AND u.id >= ").append(parameter);
         parameter = req.getParameter("order");
         if (parameter != null)
-            sql.append(" ORDER BY u.name ").append(parameter);
+            sql.append(" ORDER BY u.email ").append(parameter);
         parameter = req.getParameter("limit");
         if (parameter != null)
             sql.append(" LIMIT ").append(parameter);

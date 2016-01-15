@@ -9,6 +9,7 @@ import ru.bagrusss.helpers.Helper;
 
 import javax.servlet.http.HttpServlet;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Logger;
@@ -34,14 +35,14 @@ public class BaseServlet extends HttpServlet {
     protected static final String FOLLOWING = "following";
     protected static final String FOLLOWERS = "followers";
     protected static final String SUBSCTIPTIOS = "subscriptions";
-    //followers
+
     protected static final String FOLLOWER_EMAIL = "follower_email";
     protected static final String FOLLOWING_EMAIL = "following_email";
-    protected static Logger logger = Logger.getLogger(BaseServlet.class.getName());
+    protected static final Logger LOG = Logger.getLogger(BaseServlet.class.getName());
     protected final Gson mGSON = new Gson();
     protected final Helper mHelper = DBHelper.getInstance();
 
-    protected JsonObject parseUserWithoutEmail(ResultSet rs, JsonObject result) throws SQLException{
+    protected JsonObject parseUserWithoutEmail(ResultSet rs, JsonObject result) throws SQLException {
         result.addProperty(ID, rs.getInt(1));
         result.addProperty(ABOUT, rs.getString(ABOUT));
         result.addProperty(NAME, rs.getString(NAME));
@@ -108,6 +109,28 @@ public class BaseServlet extends HttpServlet {
         return res;
     }
 
+    protected JsonArray getListByEmail(PreparedStatement pr, String email) throws SQLException {
+        JsonArray ja = new JsonArray();
+        pr.setString(1, email);
+        try (ResultSet followers = pr.executeQuery()) {
+            while (followers.next()) {
+                ja.add(followers.getString(1));
+            }
+        }
+        return ja;
+    }
+
+    protected JsonArray getSubscriptionsByEmail(PreparedStatement pr, String email) throws SQLException {
+        JsonArray ja = new JsonArray();
+        pr.setString(1, email);
+        try (ResultSet followers = pr.executeQuery()) {
+            while (followers.next()) {
+                ja.add(followers.getLong(1));
+            }
+        }
+        return ja;
+    }
+
     protected JsonArray getSubscriptions(Connection connection, String user) throws SQLException {
         JsonArray res = new JsonArray();
         String sql = "SELECT " + "`thread_id`" +
@@ -167,6 +190,17 @@ public class BaseServlet extends HttpServlet {
                 parseThread(rs, reslult);
             }
         });
+        return reslult;
+    }
+
+    protected JsonObject getThreadDetails(PreparedStatement pr, long id) throws SQLException {
+        JsonObject reslult = new JsonObject();
+        pr.setLong(1, id);
+        try (ResultSet rs = pr.executeQuery()) {
+            if (rs.next()) {
+                return parseThread(rs, reslult);
+            }
+        }
         return reslult;
     }
 

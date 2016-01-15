@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -74,31 +75,37 @@ public class ListPosts extends BaseServlet {
             final boolean finalUser = user;
             final boolean finalForum = forum;
             mHelper.runQuery(connection, sql.toString(), rs -> {
-                while (rs.next()) {
-                    JsonObject pst = new JsonObject();
-                    pst.addProperty("id", rs.getLong(1));
-                    pst.addProperty("isApproved", rs.getBoolean("isApproved"));
-                    pst.addProperty("isDeleted", rs.getBoolean("isDeleted"));
-                    pst.addProperty("isEdited", rs.getBoolean("isEdited"));
-                    pst.addProperty("isHighlighted", rs.getBoolean("isHighlighted"));
-                    pst.addProperty("isSpam", rs.getBoolean("isSpam"));
-                    pst.addProperty("message", rs.getString("message"));
-                    if (finalThread)
-                        pst.add("thread", getThreadDetails(connection, rs.getLong("thread_id")));
-                    else pst.addProperty("thread", rs.getLong("thread_id"));
-                    pst.addProperty("date", rs.getString("pd"));
-                    if (!finalUser)
-                        pst.addProperty("user", rs.getString("user_email"));
-                    else pst.add("user", getUserDetails(connection, rs.getString("user_email"), true));
-                    if (!finalForum)
-                        pst.addProperty("forum", rs.getString("forum_short_name"));
-                    else pst.add("forum", getForumDetails(connection, rs.getString("forum_short_name")));
-                    pst.addProperty("dislikes", rs.getLong("dislikes"));
-                    pst.addProperty("likes", rs.getLong("likes"));
-                    pst.addProperty("points", rs.getLong("points"));
-                    long parent = rs.getLong("parent");
-                    pst.addProperty("parent", parent == 0 ? null : parent);
-                    result.add(pst);
+                String threadSQL = "SELECT id, likes, dislikes, message, title, slug, user_email, forum, " +
+                        "isDeleted, isClosed, posts, likes-CAST(dislikes AS SIGNED) points, " +
+                        "DATE_FORMAT(`date`, '%Y-%m-%d %H:%i:%s') dt " +
+                        "FROM `Thread` WHERE `id`=?";
+                try (PreparedStatement threadSt = connection.prepareStatement(threadSQL)) {
+                    while (rs.next()) {
+                        JsonObject pst = new JsonObject();
+                        pst.addProperty("id", rs.getLong(1));
+                        pst.addProperty("isApproved", rs.getBoolean("isApproved"));
+                        pst.addProperty("isDeleted", rs.getBoolean("isDeleted"));
+                        pst.addProperty("isEdited", rs.getBoolean("isEdited"));
+                        pst.addProperty("isHighlighted", rs.getBoolean("isHighlighted"));
+                        pst.addProperty("isSpam", rs.getBoolean("isSpam"));
+                        pst.addProperty("message", rs.getString("message"));
+                        if (finalThread)
+                            pst.add("thread", getThreadDetails(threadSt, rs.getLong("thread_id")));
+                        else pst.addProperty("thread", rs.getLong("thread_id"));
+                        pst.addProperty("date", rs.getString("pd"));
+                        if (!finalUser)
+                            pst.addProperty("user", rs.getString("user_email"));
+                        else pst.add("user", getUserDetails(connection, rs.getString("user_email"), true));
+                        if (!finalForum)
+                            pst.addProperty("forum", rs.getString("forum_short_name"));
+                        else pst.add("forum", getForumDetails(connection, rs.getString("forum_short_name")));
+                        pst.addProperty("dislikes", rs.getLong("dislikes"));
+                        pst.addProperty("likes", rs.getLong("likes"));
+                        pst.addProperty("points", rs.getLong("points"));
+                        long parent = rs.getLong("parent");
+                        pst.addProperty("parent", parent == 0 ? null : parent);
+                        result.add(pst);
+                    }
                 }
             });
         } catch (SQLException e) {

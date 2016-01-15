@@ -21,16 +21,11 @@ public class ListFollowers extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-        /*
-            SELECT STRAIGHT_JOIN u.email FROM User u FORCE INDEX(Name_id)
-            JOIN Post p FORCE INDEX (ForumShortName_UserEmail)
-            ON u.email=p.user_email WHERE p.forum_short_name = ""
-            AND u.id>=10 GROUP BY u.`name` ORDER BY u.`name`
-         */
+
         String parameter = req.getParameter("user");
         StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN ")
                 .append("u.email FROM")
-                .append(Helper.TABLE_USER).append("u FORCE INDEX (Name_id) ")
+                .append(Helper.TABLE_USER).append("u FORCE INDEX (Name_email_id) ") //TODO!!!
                 .append("INNER JOIN")
                 .append(Helper.TABLE_FOLLOWERS).append("f FORCE INDEX (following_follower) ")
                 .append("ON f.following_email=u.email ")
@@ -40,7 +35,7 @@ public class ListFollowers extends BaseServlet {
         if (parameter != null)
             sql.append(" AND u.id >= ").append(parameter);
         parameter = req.getParameter("order");
-        if (parameter != null)
+        if (parameter != null) //TODO сделать принудительную сортировку для использования индекса
             sql.append(" ORDER BY u.name ").append(parameter);
         parameter = req.getParameter("limit");
         if (parameter != null)

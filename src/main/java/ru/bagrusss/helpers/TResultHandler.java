@@ -1,7 +1,5 @@
 package ru.bagrusss.helpers;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -10,7 +8,5 @@ import java.sql.SQLException;
  */
 
 public interface TResultHandler<T> {
-
-    @Nullable
     T handle(ResultSet rs) throws SQLException;
 }

@@ -98,6 +98,5 @@ public class ListThreads extends BaseServlet {
         }
         resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), result);
-        resp.setStatus(HttpServletResponse.SC_OK);
     }
 }

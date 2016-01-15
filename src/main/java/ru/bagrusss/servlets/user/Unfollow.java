@@ -43,7 +43,8 @@ public class Unfollow extends BaseServlet {
         JsonObject res = null;
         try (Connection connection = mHelper.getConnection()) {
             StringBuilder sql = new StringBuilder("DELETE FROM")
-                    .append(Helper.TABLE_FOLLOWERS).append("WHERE follower_email = ? AND following_email = ?");
+                    .append(Helper.TABLE_FOLLOWERS)
+                    .append("WHERE follower_email = ? AND following_email = ?");
             if (mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams) == 0) {
                 resp.setStatus(HttpServletResponse.SC_OK);
                 Errors.notFound(resp.getWriter());

@@ -61,7 +61,7 @@ public class List extends BaseServlet {
                 }
             });
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, sql.toString());
+            LOG.log(Level.SEVERE, sql.toString());
         }
         resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), threads);
