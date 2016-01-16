@@ -26,15 +26,16 @@ public class Remove extends BaseServlet {
             UPDATE `Thread` SET isDeleted = 1,  WHERE id =?;
          */
         try (Connection connection = mHelper.getConnection()) {
-            long id = params.get("thread").getAsLong();
+            long id = params.get(THREAD).getAsLong();
             mHelper.runUpdate(connection,
                     "UPDATE " + Helper.TABLE_THREAD + " SET posts=0, isDeleted=1 WHERE id=" + id);
             mHelper.runUpdate(connection,
                     "UPDATE " + Helper.TABLE_POST + " SET isDeleted=1 WHERE thread_id=" + id);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), params);
     }
 }

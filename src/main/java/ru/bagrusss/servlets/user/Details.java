@@ -22,24 +22,23 @@ public class Details extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         String email = req.getParameter(USER);
-
         /*
            SELECT * FROM `User` WHERE `email` = ?;
            SELECT `following_email` FROM `Followers` WHERE `follower_email` = ?;
            SELECT `follower_email` FROM `Followers` WHERE `following_email` =?;
            SELECT `thread_id` FROM `Subscriptions` WHERE `user_email` = ?; индекс (user_email, id)
            */
-        JsonObject result = null;
+        JsonObject result;
         try (Connection connection = mHelper.getConnection()) {
             result = getUserDetails(connection, email, true);
         } catch (SQLException e) {
             e.printStackTrace();
+            e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         if (result == null)
             Errors.notFound(resp.getWriter());
-        else
-            Errors.correct(resp.getWriter(), result);
+        else Errors.correct(resp.getWriter(), result);
     }
 
 }

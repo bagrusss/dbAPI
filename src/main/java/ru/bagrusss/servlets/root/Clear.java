@@ -18,15 +18,15 @@ public class Clear extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        mSQLBuilder.setLength(0);
         resp.setContentType("application/json; charset=utf8");
+        mSQLBuilder.setLength(0);
         mSQLBuilder.append("DROP TABLE IF EXISTS");
         for (String tbl : Helper.TABLES) {
             mSQLBuilder.append(tbl)
                     .append(',');
         }
         mSQLBuilder.replace(mSQLBuilder.length() - 2, mSQLBuilder.length(), "");
-        try(Connection connection = mHelper.getConnection()) {
+        try (Connection connection = mHelper.getConnection()) {
             mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
             mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_USER)
@@ -112,7 +112,9 @@ public class Clear extends BaseServlet {
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(connection, mSQLBuilder.toString());
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
         Errors.correct(resp.getWriter(), Errors.MESSAGE_OK);
     }

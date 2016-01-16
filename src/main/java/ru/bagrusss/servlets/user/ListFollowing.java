@@ -26,43 +26,39 @@ public class ListFollowing extends BaseServlet {
            SELECT * FROM `User` WHERE `email` = ?;
 
            SELECT `follower_email` FROM `Followers` WHERE `following_email` =?;
-
            SELECT `following_email` FROM `Followers` WHERE `follower_email` = ?;
-           или
-           SELECT `following_email` FROM `Followers` WHERE `follower_email` = ? AND ?;
 
-           SELECT `following_email` FROM `Followers` WHERE `follower_email` = ? ORDER BY `name` ? LIMIT ?;
-
-           SELECT `thread_id` FROM `Subscriptions` WHERE `user_email` = ?;
          */
-        String parameter = req.getParameter("user");
-        StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN u.email FROM")
+        String parameter = req.getParameter(USER);
+        StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN f.follower_email FROM")
                 .append(Helper.TABLE_USER).append("u FORCE INDEX (Name_email_id) ") //TODO!!!
                 .append("INNER JOIN")
-                .append(Helper.TABLE_FOLLOWERS).append("f FORCE INDEX (primary) ")
+                .append(Helper.TABLE_FOLLOWERS).append("f FORCE INDEX (following_follower) ")
                 .append("ON f.follower_email=u.email ")
                 .append("WHERE f.following_email=").append('\'')
                 .append(parameter).append("\' ");
-        parameter = req.getParameter("since_id");
+        parameter = req.getParameter(SINCE_ID);
         if (parameter != null)
             sql.append(" AND u.id >= ").append(parameter);
-        parameter = req.getParameter("order");
+        parameter = req.getParameter(ORDER);
+        sql.append(" ORDER BY u.name ");
         if (parameter != null)
-            sql.append(" ORDER BY u.email ").append(parameter);
-        parameter = req.getParameter("limit");
+            sql.append(parameter);
+        parameter = req.getParameter(LIMIT);
         if (parameter != null)
             sql.append(" LIMIT ").append(parameter);
         JsonArray followers = new JsonArray();
         try (Connection connection = mHelper.getConnection()) {
             mHelper.runQuery(connection, sql.toString(), rs -> {
                 while (rs.next()) {
-                    followers.add(getUserDetails(connection, rs.getString("email"), true));
+                    followers.add(getUserDetails(connection, rs.getString(1), true));
                 }
             });
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), followers);
     }
 

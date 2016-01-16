@@ -28,24 +28,23 @@ public class ListPosts extends BaseServlet {
         /*
             SELECT *, `likes`-`dislikes` points FROM `Posts` WHERE `forum_short_name` = ?
          */
-        String[] related = req.getParameterValues("related");
+        String[] related = req.getParameterValues(RELATED);
         boolean user = false;
         boolean forum = false;
         boolean thread = false;
         if (related != null) {
             for (String rel : related) {
                 switch (rel) {
-                    case "user":
+                    case USER:
                         user = true;
                         break;
-                    case "forum":
+                    case FORUM:
                         forum = true;
                         break;
-                    case "thread":
+                    case THREAD:
                         thread = true;
                         break;
                     default:
-                        resp.setStatus(HttpServletResponse.SC_OK);
                         Errors.incorrecRequest(resp.getWriter());
                         return;
                 }
@@ -54,18 +53,18 @@ public class ListPosts extends BaseServlet {
         StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
                 .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd ")
                 .append("FROM").append(Helper.TABLE_POST);
-        String par = req.getParameter("forum");
+        String par = req.getParameter(FORUM);
         sql.append("WHERE `forum_short_name` = \'").append(par).append('\'');
-        par = req.getParameter("since");
+        par = req.getParameter(SINCE);
         if (par != null) {
             sql.append(" AND `date` >= \'")
                     .append(par).append("\' ");
         }
-        par = req.getParameter("order");
+        par = req.getParameter(ORDER);
         if (par != null) {
             sql.append("ORDER BY `date` ").append(par);
         }
-        par = req.getParameter("limit");
+        par = req.getParameter(LIMIT);
         if (par != null) {
             sql.append(" LIMIT ").append(par);
         }
@@ -82,36 +81,37 @@ public class ListPosts extends BaseServlet {
                 try (PreparedStatement threadSt = connection.prepareStatement(threadSQL)) {
                     while (rs.next()) {
                         JsonObject pst = new JsonObject();
-                        pst.addProperty("id", rs.getLong(1));
-                        pst.addProperty("isApproved", rs.getBoolean("isApproved"));
-                        pst.addProperty("isDeleted", rs.getBoolean("isDeleted"));
-                        pst.addProperty("isEdited", rs.getBoolean("isEdited"));
-                        pst.addProperty("isHighlighted", rs.getBoolean("isHighlighted"));
-                        pst.addProperty("isSpam", rs.getBoolean("isSpam"));
-                        pst.addProperty("message", rs.getString("message"));
+                        pst.addProperty(ID, rs.getLong(1));
+                        pst.addProperty(IS_APPROVED, rs.getBoolean(IS_APPROVED));
+                        pst.addProperty(IS_DELETED, rs.getBoolean(IS_DELETED));
+                        pst.addProperty(IS_EDITED, rs.getBoolean(IS_EDITED));
+                        pst.addProperty(IS_HIGHLIGHTED, rs.getBoolean(IS_HIGHLIGHTED));
+                        pst.addProperty(IS_SPAM, rs.getBoolean(IS_SPAM));
+                        pst.addProperty(MESSAGE, rs.getString(MESSAGE));
                         if (finalThread)
-                            pst.add("thread", getThreadDetails(threadSt, rs.getLong("thread_id")));
-                        else pst.addProperty("thread", rs.getLong("thread_id"));
-                        pst.addProperty("date", rs.getString("pd"));
+                            pst.add(THREAD, getThreadDetails(threadSt, rs.getLong("thread_id")));
+                        else pst.addProperty(THREAD, rs.getLong("thread_id"));
+                        pst.addProperty(DATE, rs.getString("pd"));
                         if (!finalUser)
-                            pst.addProperty("user", rs.getString("user_email"));
-                        else pst.add("user", getUserDetails(connection, rs.getString("user_email"), true));
+                            pst.addProperty(USER, rs.getString("user_email"));
+                        else pst.add(USER, getUserDetails(connection, rs.getString("user_email"), true));
                         if (!finalForum)
-                            pst.addProperty("forum", rs.getString("forum_short_name"));
-                        else pst.add("forum", getForumDetails(connection, rs.getString("forum_short_name")));
-                        pst.addProperty("dislikes", rs.getLong("dislikes"));
-                        pst.addProperty("likes", rs.getLong("likes"));
-                        pst.addProperty("points", rs.getLong("points"));
-                        long parent = rs.getLong("parent");
-                        pst.addProperty("parent", parent == 0 ? null : parent);
+                            pst.addProperty(FORUM, rs.getString("forum_short_name"));
+                        else pst.add(FORUM, getForumDetails(connection, rs.getString("forum_short_name")));
+                        pst.addProperty(DISLIKES, rs.getLong(DISLIKES));
+                        pst.addProperty(LIKES, rs.getLong(LIKES));
+                        pst.addProperty(POINTS, rs.getLong(POINTS));
+                        long parent = rs.getLong(PARENT);
+                        pst.addProperty(PARENT, parent == 0 ? null : parent);
                         result.add(pst);
                     }
                 }
             });
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), result);
     }
 }

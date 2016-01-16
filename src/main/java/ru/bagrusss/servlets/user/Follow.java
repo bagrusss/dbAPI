@@ -42,18 +42,19 @@ public class Follow extends BaseServlet {
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         List<Object> sqlParams = new ArrayList<>(2);
         String user;
-        sqlParams.add(user = params.get("followee").getAsString());
-        sqlParams.add(params.get("follower").getAsString());
+        sqlParams.add(user = params.get(FOLLOWEE).getAsString());
+        sqlParams.add(params.get(FOLLOWER).getAsString());
         StringBuilder sql = new StringBuilder("INSERT IGNORE INTO ").append(Helper.TABLE_FOLLOWERS)
                 .append("VALUES (?, ?)");
-        JsonObject result = null;
+        JsonObject result;
         try (Connection connection = mHelper.getConnection()) {
             mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams);
             result = getUserDetails(connection, user, true);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), result);
     }
 }

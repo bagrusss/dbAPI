@@ -40,7 +40,7 @@ public class List extends BaseServlet {
                     .append(par).append('\'');
         else
             sql.append("thread_id =")
-                    .append(Long.valueOf(req.getParameter("thread")));
+                    .append(Long.valueOf(req.getParameter(THREAD)));
         par = req.getParameter("since");
         if (par != null)
             sql.append(" AND `date` >= \'")
@@ -59,9 +59,10 @@ public class List extends BaseServlet {
                 }
             });
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), posts);
     }
 }

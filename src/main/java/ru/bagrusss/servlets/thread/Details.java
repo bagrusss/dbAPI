@@ -17,7 +17,6 @@ import java.sql.SQLException;
 public class Details extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/thread/details/";
 
-
     private boolean checkParam(String[] param) {
         if (param == null)
             return true;
@@ -37,20 +36,19 @@ public class Details extends BaseServlet {
             SELECT * FROM `Forum` WHERE `short_name` = ?
 
          */
-        long id = Long.valueOf(req.getParameter("thread"));
-
-        if (!checkParam(req.getParameterValues("related"))) {
-            resp.setStatus(HttpServletResponse.SC_OK);
+        long id = Long.valueOf(req.getParameter(THREAD));
+        if (!checkParam(req.getParameterValues(RELATED))) {
             Errors.incorrecRequest(resp.getWriter());
             return;
         }
-        JsonObject reslult = null;
+        JsonObject reslult;
         try(Connection connection = mHelper.getConnection()) {
             reslult = getThreadDetails(connection, id);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), reslult);
     }
 }

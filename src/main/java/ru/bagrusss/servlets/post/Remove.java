@@ -23,13 +23,12 @@ public class Remove extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
-        //индекс по id, thread_id ?
-        long id = params.get("post").getAsLong();
+        long id = params.get(POST).getAsLong();
         /*
               UPDATE `Post` SET `isDeleted`=1 WHERE `id`=?;
          */
-        try(Connection connection = mHelper.getConnection()) {
-            toggleField(connection, Helper.TABLE_POST, id, "isDeleted", true);
+        try (Connection connection = mHelper.getConnection()) {
+            toggleField(connection, Helper.TABLE_POST, id, IS_DELETED, true);
             mHelper.runQuery(connection, "SELECT `thread_id` FROM "
                     + Helper.TABLE_POST + " Where id=" + id, rs -> {
                 if (rs.next())
@@ -39,9 +38,10 @@ public class Remove extends BaseServlet {
                     }
             });
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), params);
     }
 }

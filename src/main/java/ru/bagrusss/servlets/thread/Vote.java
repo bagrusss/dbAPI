@@ -27,16 +27,15 @@ public class Vote extends BaseServlet {
             UPDATE `Thread` SET `dislikes`=`dislikes`+1 WHERE `id`=?
          */
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
-        long id = params.get("thread").getAsLong();
-        byte vt = params.get("vote").getAsByte();
+        long id = params.get(THREAD).getAsLong();
+        byte vt = params.get(VOTE).getAsByte();
         try (Connection connection = mHelper.getConnection()) {
             params = vote(connection, Helper.TABLE_THREAD, id, vt);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
-        if (params != null) {
-            Errors.correct(resp.getWriter(), params);
-        }
+        Errors.correct(resp.getWriter(), params);
     }
 }

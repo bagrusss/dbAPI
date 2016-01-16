@@ -21,19 +21,18 @@ public class Open extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         /*
             UPDATE `Thread` SET isClosed = 0 WHERE id =?;
          */
-
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         try (Connection connection = mHelper.getConnection()) {
             toggleField(connection, Helper.TABLE_THREAD,
-                    params.get("thread").getAsLong(), "isClosed", false);
+                    params.get(THREAD).getAsLong(), IS_CLOSED, false);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), params);
     }
 }

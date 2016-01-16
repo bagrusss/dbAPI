@@ -27,12 +27,10 @@ public class Create extends BaseServlet {
         /*
             INSERT IGNORE INTO `User` (`username`, `about`, `name`, `email`, `isAnonymous`)
             VALUES (?, ?, ?, ?, ?);
-
             SELECT * FROM `User` WHERE `email` = ?;
         */
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         List<Object> sqlParams = new ArrayList<>(5);
-
         sqlParams.add(params.get(EMAIL).getAsString());
         JsonElement elem = params.get(USERNAME);
         sqlParams.add(elem.isJsonNull() ? null : elem.getAsString());
@@ -41,22 +39,20 @@ public class Create extends BaseServlet {
         elem = params.get(NAME);
         sqlParams.add(elem.isJsonNull() ? null : elem.getAsString());
         sqlParams.add(params.has(IS_ANNONIMOUS) && params.get(IS_ANNONIMOUS).getAsBoolean());
-
         long id = 0;
         try (Connection connection = mHelper.getConnection()) {
             String sql = "INSERT IGNORE INTO `User` (`email`, `username`, `about`, `name`, `isAnonymous`) VALUES (?, ?, ?, ?, ?);";
             id = mHelper.preparedInsertAndGetKeys(connection, sql, sqlParams);
             if (id == 0) {
-                resp.setStatus(HttpServletResponse.SC_OK);
                 Errors.userAlreadyExists(resp.getWriter());
                 return;
             }
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-
         params.addProperty(ID, id);
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), params);
     }
 }

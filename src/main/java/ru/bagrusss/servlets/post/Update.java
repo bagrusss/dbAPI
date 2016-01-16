@@ -27,18 +27,19 @@ public class Update extends BaseServlet {
             UPDATE `Post` SET `message`=? WHERE id =?;
          */
         List<Object> sqlParams = new ArrayList<>(2);
-        sqlParams.add(params.get("message").getAsString());
+        sqlParams.add(params.get(MESSAGE).getAsString());
         long id;
-        sqlParams.add(id = params.get("post").getAsLong());
-        JsonObject result = null;
+        sqlParams.add(id = params.get(POST).getAsLong());
+        JsonObject result;
         try (Connection connection = mHelper.getConnection()) {
             String sql = "UPDATE `Post` SET `message`=? WHERE id =?;";
             mHelper.runPreparedUpdate(connection, sql, sqlParams);
             result = getPostDetails(connection, id);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         if (result != null)
             Errors.correct(resp.getWriter(), result);
         else Errors.notFound(resp.getWriter());

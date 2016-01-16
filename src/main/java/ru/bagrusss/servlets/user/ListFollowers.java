@@ -21,23 +21,23 @@ public class ListFollowers extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-
-        String parameter = req.getParameter("user");
+        String parameter = req.getParameter(USER);
         StringBuilder sql = new StringBuilder("SELECT STRAIGHT_JOIN ")
-                .append("u.email FROM")
+                .append("f.following_email FROM")
                 .append(Helper.TABLE_USER).append("u FORCE INDEX (Name_email_id) ") //TODO!!!
                 .append("INNER JOIN")
-                .append(Helper.TABLE_FOLLOWERS).append("f FORCE INDEX (following_follower) ")
+                .append(Helper.TABLE_FOLLOWERS).append("f FORCE INDEX (primary) ")
                 .append("ON f.following_email=u.email ")
                 .append("WHERE f.follower_email=").append('\'')
                 .append(parameter).append("\' ");
-        parameter = req.getParameter("since_id");
+        parameter = req.getParameter(SINCE_ID);
         if (parameter != null)
             sql.append(" AND u.id >= ").append(parameter);
-        parameter = req.getParameter("order");
+        parameter = req.getParameter(ORDER);
+        sql.append(" ORDER BY u.name ");
         if (parameter != null) //TODO сделать принудительную сортировку для использования индекса
-            sql.append(" ORDER BY u.name ").append(parameter);
-        parameter = req.getParameter("limit");
+            sql.append(parameter);
+        parameter = req.getParameter(LIMIT);
         if (parameter != null)
             sql.append(" LIMIT ").append(parameter);
         JsonArray followers = new JsonArray();
@@ -48,9 +48,10 @@ public class ListFollowers extends BaseServlet {
                 }
             });
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), followers);
     }
 }

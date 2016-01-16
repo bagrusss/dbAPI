@@ -27,8 +27,6 @@ public class Status extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setStatus(HttpServletResponse.SC_OK);
-        req.getPathInfo();
         JsonObject states = new JsonObject();
         try (Connection connection = mHelper.getConnection()) {
             mHelper.runQuery(connection, sql.toString(), (rs) -> {
@@ -36,10 +34,12 @@ public class Status extends BaseServlet {
                 while (rs.next())
                     states.addProperty(mNames[i++], rs.getInt(1));
             });
-            Errors.correct(resp.getWriter(), states);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
+        Errors.correct(resp.getWriter(), states);
     }
 }
 

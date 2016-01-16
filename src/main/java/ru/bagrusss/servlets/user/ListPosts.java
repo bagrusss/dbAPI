@@ -24,20 +24,20 @@ public class ListPosts extends BaseServlet {
         /*
             SELECT * FROM `Post` WHERE `user_email`=? AND date >= ? ORDER BY `date` ASC LIMIT ?;
          */
-        String par = req.getParameter("user");
+        String par = req.getParameter(USER);
         StringBuilder sql = new StringBuilder("SELECT *, DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd, ")
                 .append("likes-CAST(dislikes AS SIGNED) points FROM")
                 .append(Helper.TABLE_POST)
                 .append("WHERE `user_email` = \'")
                 .append(par).append("\' ");
-        par = req.getParameter("since");
+        par = req.getParameter(SINCE);
         if (par != null)
             sql.append(" AND `date` >= \'")
                     .append(par).append("\' ");
-        par = req.getParameter("order");
+        par = req.getParameter(ORDER);
         if (par != null)
             sql.append(" ORDER BY `date` ").append(par);
-        par = req.getParameter("limit");
+        par = req.getParameter(LIMIT);
         if (par != null)
             sql.append(" LIMIT ").append(par);
         JsonArray posts = new JsonArray();
@@ -48,9 +48,10 @@ public class ListPosts extends BaseServlet {
                 }
             });
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), posts);
     }
 }

@@ -24,37 +24,33 @@ public class Unfollow extends BaseServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
-
         /*
-            DELETE FROM `Followers` WHERE follower_email = ? AND following_email = ?;
-
-            user/details/
+           DELETE FROM `Followers` WHERE follower_email = ? AND following_email = ?;
 
            SELECT * FROM `User` WHERE `email` = ?;
            SELECT `following_email` FROM `Followers` WHERE `follower_email` = ?;
            SELECT `follower_email` FROM `Followers` WHERE `following_email` =?;
-           SELECT `thread_id` FROM `Subscriptions` WHERE `user_email` = ?; индекс (user_email, id)
-
+           SELECT `thread_id` FROM `Subscriptions` WHERE `user_email` = ?;
         */
         List<Object> sqlParams = new ArrayList<>(2);
         String email;
-        sqlParams.add(email = params.get("followee").getAsString());
-        sqlParams.add(params.get("follower").getAsString());
-        JsonObject res = null;
+        sqlParams.add(email = params.get(FOLLOWEE).getAsString());
+        sqlParams.add(params.get(FOLLOWER).getAsString());
+        JsonObject res;
         try (Connection connection = mHelper.getConnection()) {
             StringBuilder sql = new StringBuilder("DELETE FROM")
                     .append(Helper.TABLE_FOLLOWERS)
                     .append("WHERE follower_email = ? AND following_email = ?");
             if (mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams) == 0) {
-                resp.setStatus(HttpServletResponse.SC_OK);
                 Errors.notFound(resp.getWriter());
                 return;
             }
             res = getUserDetails(connection, email, true);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), res);
     }
 

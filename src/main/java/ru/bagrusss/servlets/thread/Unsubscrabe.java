@@ -25,19 +25,19 @@ public class Unsubscrabe extends BaseServlet {
             DELETE FROM `Subscriptions` WHERE `user_email` = ? AND `thread_id` = ?;
          */
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         java.util.List<Object> sqlParams = new ArrayList<>(2);
-        sqlParams.add(params.get("user").getAsString());
-        sqlParams.add(params.get("thread").getAsInt());
+        sqlParams.add(params.get(USER).getAsString());
+        sqlParams.add(params.get(THREAD).getAsInt());
         StringBuilder sql = new StringBuilder("DELETE FROM").append(Helper.TABLE_SUBSCRIPTIONS)
                 .append("WHERE `user_email` = ? AND `thread_id` = ?");
         try (Connection connection = mHelper.getConnection()) {
             mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), params);
     }
 }

@@ -22,12 +22,12 @@ public class Restore extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
-        long id = params.get("post").getAsLong();
+        long id = params.get(POST).getAsLong();
         /*
               UPDATE `Post` SET `isDeleted`=0 WHERE `id`=?;
          */
         try (Connection connection = mHelper.getConnection()) {
-            toggleField(connection, Helper.TABLE_POST, id, "isDeleted", false);
+            toggleField(connection, Helper.TABLE_POST, id, IS_DELETED, false);
             mHelper.runQuery(connection, "SELECT `thread_id` FROM Post Where id=" + id, rs -> {
                 if (rs.next())
                     try (Statement st = connection.createStatement()) {
@@ -36,9 +36,10 @@ public class Restore extends BaseServlet {
                     }
             });
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), params);
     }
 }

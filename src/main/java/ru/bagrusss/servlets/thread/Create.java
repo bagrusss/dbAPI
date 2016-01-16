@@ -36,25 +36,26 @@ public class Create extends BaseServlet {
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         List<Object> sqlParams = new ArrayList<>(8);
         try {
-            sqlParams.add(params.get("forum").getAsString());
-            sqlParams.add(params.get("title").getAsString());
-            sqlParams.add(params.get("slug").getAsString());
-            sqlParams.add(params.get("user").getAsString());
-            sqlParams.add(params.get("date").getAsString());
-            sqlParams.add(params.get("message").getAsString());
-            sqlParams.add(params.get("isClosed").getAsBoolean());
-            sqlParams.add(params.has("isDeleted") && params.get("isDeleted").getAsBoolean());
+            sqlParams.add(params.get(FORUM).getAsString());
+            sqlParams.add(params.get(TITLE).getAsString());
+            sqlParams.add(params.get(SLUG).getAsString());
+            sqlParams.add(params.get(USER).getAsString());
+            sqlParams.add(params.get(DATE).getAsString());
+            sqlParams.add(params.get(MESSAGE).getAsString());
+            sqlParams.add(params.get(IS_CLOSED).getAsBoolean());
+            sqlParams.add(params.has(IS_DELETED) && params.get(IS_DELETED).getAsBoolean());
         } catch (UnsupportedOperationException e) {
-            resp.setStatus(HttpServletResponse.SC_OK);
             Errors.incorrecRequest(resp.getWriter());
+            return;
         }
         try (Connection connection = mHelper.getConnection()) {
             long id = mHelper.preparedInsertAndGetKeys(connection, sql.toString(), sqlParams);
-            params.addProperty("id", id);
+            params.addProperty(ID, id);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), params);
     }
 }

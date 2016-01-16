@@ -28,25 +28,23 @@ public class UpdateProfile extends BaseServlet {
          */
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         List<Object> sqlParams = new ArrayList<>(2);
-
-        sqlParams.add(params.get("about").getAsString());
-        sqlParams.add(params.get("name").getAsString());
+        sqlParams.add(params.get(ABOUT).getAsString());
+        sqlParams.add(params.get(NAME).getAsString());
         String email;
-        sqlParams.add(email = params.get("user").getAsString());
-
-        JsonObject result = null;
+        sqlParams.add(email = params.get(USER).getAsString());
+        JsonObject result;
         try (Connection connection = mHelper.getConnection()) {
             String sql = "UPDATE `User` SET `about`=?, `name`=? WHERE `email` = ?";
             if (mHelper.runPreparedUpdate(connection, sql, sqlParams) == 0) {
-                resp.setStatus(HttpServletResponse.SC_OK);
                 Errors.notFound(resp.getWriter());
                 return;
             }
             result = getUserDetails(connection, email, true);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), result);
     }
 

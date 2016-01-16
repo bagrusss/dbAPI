@@ -21,17 +21,18 @@ public class Details extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-        String forum = req.getParameter("forum");
+        String forum = req.getParameter(FORUM);
         /*
             SELECT * FROM `Forum` WHERE short_name = ?;
          */
-        JsonObject result = null;
+        JsonObject result;
         try (Connection connection = mHelper.getConnection()) {
             result = getForumDetails(connection, forum);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), result);
     }
 }

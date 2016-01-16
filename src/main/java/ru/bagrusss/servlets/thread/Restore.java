@@ -22,16 +22,17 @@ public class Restore extends BaseServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         try (Connection connection = mHelper.getConnection()) {
-            long id = params.get("thread").getAsLong();
+            long id = params.get(THREAD).getAsLong();
             mHelper.runUpdate(connection,
                     "UPDATE `Thread` SET posts=(SELECT COUNT(`Post`.id) FROM Post WHERE thread_id=" +
                             id + "), isDeleted=0 WHERE id=" + id);
             mHelper.runUpdate(connection,
                     "UPDATE `Post` SET isDeleted = 0 WHERE thread_id =" + id);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), params);
     }
 

@@ -28,14 +28,15 @@ public class Details extends BaseServlet {
             SELECT * FROM `Forum` WHERE `short_name` = ?;
             SELECT *, likes-dislikes AS points FROM `Thread` WHERE `id` = ?
          */
-        long id = Long.valueOf(req.getParameter("post"));
-        JsonObject result = null;
+        long id = Long.valueOf(req.getParameter(POST));
+        JsonObject result;
         try (Connection connection = mHelper.getConnection()) {
             result = getPostDetails(connection, id);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         if (result != null)
             Errors.correct(resp.getWriter(), result);
         else Errors.notFound(resp.getWriter());

@@ -24,23 +24,24 @@ public class Update extends BaseServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
-        long id = params.get("thread").getAsLong();
+        long id = params.get(THREAD).getAsLong();
         /*
             UPDATE `Thread` SET `message`=?, `slug`=? WHERE id =?;
          */
         List<Object> sqlParams = new ArrayList<>();
-        sqlParams.add(params.get("message").getAsString());
-        sqlParams.add(params.get("slug").getAsString());
+        sqlParams.add(params.get(MESSAGE).getAsString());
+        sqlParams.add(params.get(SLUG).getAsString());
         sqlParams.add(id);
-        JsonObject result = null;
+        JsonObject result;
         try (Connection connection = mHelper.getConnection()) {
             String sql = "UPDATE `Thread` SET `message`=?, `slug`=? WHERE id =?";
             mHelper.runPreparedUpdate(connection, sql, sqlParams);
             result = getThreadDetails(connection, id);
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), result);
     }
 }

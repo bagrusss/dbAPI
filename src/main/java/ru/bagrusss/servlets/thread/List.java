@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.logging.Level;
 
 /**
  * Created by vladislav
@@ -33,37 +32,37 @@ public class List extends BaseServlet {
                 .append("DATE_FORMAT(`date`, '%Y-%m-%d %H:%i:%s') dt FROM")
                 .append(Helper.TABLE_THREAD)
                 .append("WHERE ");
-        String par = req.getParameter("user");
+        String par = req.getParameter(USER);
         if (par != null) {
             sql.append("`user_email`=\'")
                     .append(par).append('\'');
         } else {
             sql.append("`forum`= \'")
-                    .append(req.getParameter("forum")).append('\'');
+                    .append(req.getParameter(FORUM)).append('\'');
         }
-        par = req.getParameter("since");
+        par = req.getParameter(SINCE);
         if (par != null)
             sql.append(" AND `date` >= \'")
                     .append(par).append('\'');
-        par = req.getParameter("order");
+        par = req.getParameter(ORDER);
         if (par != null)
             sql.append(" ORDER BY `date` ")
                     .append(par);
-        par = req.getParameter("limit");
+        par = req.getParameter(LIMIT);
         if (par != null)
             sql.append(" LIMIT ").append(par);
-        resp.setStatus(HttpServletResponse.SC_OK);
         JsonArray threads = new JsonArray();
-        try (Connection connection = mHelper.getConnection()){
+        try (Connection connection = mHelper.getConnection()) {
             mHelper.runQuery(connection, sql.toString(), rs -> {
                 while (rs.next()) {
                     threads.add(parseThread(rs, null));
                 }
             });
         } catch (SQLException e) {
-            LOG.log(Level.SEVERE, sql.toString());
+            Errors.unknownError(resp.getWriter());
+            e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), threads);
     }
 }

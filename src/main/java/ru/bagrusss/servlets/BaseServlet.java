@@ -19,28 +19,60 @@ import java.util.logging.Logger;
  */
 
 
-@SuppressWarnings("ConstantNamingConvention")
+@SuppressWarnings({"ConstantNamingConvention", "SqlNoDataSourceInspection", "SqlResolve", "unused"})
 public class BaseServlet extends HttpServlet {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
     protected static final String BASE_URL = "/db/api";
-    //user
-    protected static final String USERNAME = "username";
+
+    protected static final String SINCE = "since";
+    protected static final String ORDER = "order";
     protected static final String USER = "user";
+    protected static final String LIMIT = "limit";
+    protected static final String RELATED = "related";
+    protected static final String SINCE_ID = "since_id";
+
+    protected static final String USERNAME = "username";
     protected static final String EMAIL = "email";
     protected static final String ABOUT = "about";
     protected static final String NAME = "name";
     protected static final String ID = "id";
+    protected static final String THREAD = "thread";
+    protected static final String FORUM = "forum";
+    protected static final String SHORT_NAME = "short_name";
+    protected static final String POST = "post";
+    protected static final String VOTE = "vote";
+    protected static final String TITLE = "title";
+    protected static final String SLUG = "slug";
+    protected static final String PARENT = "parent";
+    protected static final String DATE = "date";
+    protected static final String MESSAGE = "message";
+    protected static final String DISLIKES = "dislikes";
+    protected static final String LIKES = "likes";
+    protected static final String POINTS = "points";
+    protected static final String POSTS = "posts";
+    protected static final String IS_DELETED = "isDeleted";
+    protected static final String IS_SPAM = "isSpam";
+    protected static final String IS_EDITED = "isEdited";
+    protected static final String IS_HIGHLIGHTED = "isHighlighted";
+    protected static final String IS_APPROVED = "isApproved";
+    protected static final String IS_CLOSED = "isClosed";
     protected static final String IS_ANNONIMOUS = "isAnonymous";
     protected static final String FOLLOWING = "following";
     protected static final String FOLLOWERS = "followers";
     protected static final String SUBSCTIPTIOS = "subscriptions";
+    protected static final String FOLLOWEE = "followee";
+    protected static final String FOLLOWER = "follower";
 
     protected static final String FOLLOWER_EMAIL = "follower_email";
     protected static final String FOLLOWING_EMAIL = "following_email";
     protected static final Logger LOG = Logger.getLogger(BaseServlet.class.getName());
-    protected final Gson mGSON = new Gson();
-    protected final Helper mHelper = DBHelper.getInstance();
+    protected static final Gson mGSON = new Gson();
+    protected static final Helper mHelper = DBHelper.getInstance();
+
+    protected static final String followersQuery = "SELECT following_email FROM Followers WHERE follower_email=?";
+    protected static final String followingQuery = "SELECT follower_email FROM Followers WHERE following_email=?";
+    protected static final String subscriptionsQuery = "SELECT thread_id FROM Subscriptions WHERE user_email=?";
 
     protected JsonObject parseUserWithoutEmail(ResultSet rs, JsonObject result) throws SQLException {
         result.addProperty(ID, rs.getInt(1));
@@ -118,6 +150,25 @@ public class BaseServlet extends HttpServlet {
             }
         }
         return ja;
+    }
+
+    protected void prepareUsers(Connection connection, ResultSet rs, JsonArray ja) throws SQLException{
+        if (rs.next()) {
+            rs.beforeFirst();
+            try (PreparedStatement preparedFollowers = connection.prepareStatement(followersQuery);
+                 PreparedStatement preparedFollowong = connection.prepareStatement(followingQuery);
+                 PreparedStatement preparedSubscriptions = connection.prepareStatement(subscriptionsQuery)) {
+                while (rs.next()) {
+                    JsonObject user = new JsonObject();
+                    String email = rs.getString(EMAIL);
+                    user.add(FOLLOWING, getListByEmail(preparedFollowers, email));
+                    user.add(FOLLOWERS, getListByEmail(preparedFollowong, email));
+                    user.add(SUBSCTIPTIOS, getSubscriptionsByEmail(preparedSubscriptions, email));
+                    user.addProperty(EMAIL, email);
+                    ja.add(parseUserWithoutEmail(rs, user));
+                }
+            }
+        }
     }
 
     protected JsonArray getSubscriptionsByEmail(PreparedStatement pr, String email) throws SQLException {
@@ -207,9 +258,9 @@ public class BaseServlet extends HttpServlet {
     protected JsonObject parsePost(ResultSet rs, @Nullable JsonObject result) throws SQLException {
         if (result == null)
             result = new JsonObject();
-        result.addProperty("id", rs.getLong(1));
-        result.addProperty("isApproved", rs.getBoolean("isApproved"));
-        result.addProperty("isDeleted", rs.getBoolean("isDeleted"));
+        result.addProperty(ID, rs.getLong(1));
+        result.addProperty(IS_APPROVED, rs.getBoolean(IS_APPROVED));
+        result.addProperty(IS_DELETED, rs.getBoolean(IS_DELETED));
         result.addProperty("isEdited", rs.getBoolean("isEdited"));
         result.addProperty("isHighlighted", rs.getBoolean("isHighlighted"));
         result.addProperty("isSpam", rs.getBoolean("isSpam"));

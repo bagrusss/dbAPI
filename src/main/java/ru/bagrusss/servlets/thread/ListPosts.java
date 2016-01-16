@@ -21,7 +21,7 @@ public class ListPosts extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
-        int thread = Integer.valueOf(req.getParameter("thread"));
+        int thread = Integer.valueOf(req.getParameter(THREAD));
         /*
             SELECT *, likes-dislikes AS points FROM `Post` WHERE `thread_id` = ?
          */
@@ -29,13 +29,13 @@ public class ListPosts extends BaseServlet {
                 .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd ")
                 .append("FROM").append(Helper.TABLE_POST)
                 .append("WHERE `thread_id`=").append(thread);
-        String par = req.getParameter("since");
+        String par = req.getParameter(SINCE);
         if (par != null)
             sql.append(" AND `date` >= \'").append(par).append("\' ");
-        par = req.getParameter("order");
+        par = req.getParameter(ORDER);
         if (par != null)
             sql.append(" ORDER BY `date` ").append(par);
-        par = req.getParameter("limit");
+        par = req.getParameter(LIMIT);
         if (par != null)
             sql.append(" LIMIT ").append(par);
         JsonArray postsList = new JsonArray();
@@ -46,9 +46,10 @@ public class ListPosts extends BaseServlet {
                 }
             });
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), postsList);
     }
 }

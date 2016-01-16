@@ -26,21 +26,20 @@ public class ListThreads extends BaseServlet {
         /*
             SELECT *, `likes`-`dislikes` points FROM `Posts` WHERE `forum_short_name` = ?
          */
-        String[] related = req.getParameterValues("related");
+        String[] related = req.getParameterValues(RELATED);
         boolean user = false;
         boolean forum = false;
 
         if (related != null) {
             for (String rel : related) {
                 switch (rel) {
-                    case "user":
+                    case USER:
                         user = true;
                         break;
-                    case "forum":
+                    case FORUM:
                         forum = true;
                         break;
                     default:
-                        resp.setStatus(HttpServletResponse.SC_OK);
                         Errors.incorrecRequest(resp.getWriter());
                         return;
                 }
@@ -49,19 +48,19 @@ public class ListThreads extends BaseServlet {
         StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
                 .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') td ")
                 .append("FROM").append(Helper.TABLE_THREAD);
-        String par = req.getParameter("forum");
+        String par = req.getParameter(FORUM);
         sql.append("WHERE `forum` = \'")
                 .append(par).append('\'');
-        par = req.getParameter("since");
+        par = req.getParameter(SINCE);
         if (par != null) {
             sql.append(" AND `date` >= \'")
                     .append(par).append("\' ");
         }
-        par = req.getParameter("order");
+        par = req.getParameter(ORDER);
         if (par != null) {
             sql.append("ORDER BY `date` ").append(par);
         }
-        par = req.getParameter("limit");
+        par = req.getParameter(LIMIT);
         if (par != null) {
             sql.append(" LIMIT ").append(par);
         }
@@ -72,31 +71,32 @@ public class ListThreads extends BaseServlet {
             mHelper.runQuery(connection, sql.toString(), rs -> {
                 while (rs.next()) {
                     JsonObject thr = new JsonObject();
-                    thr.addProperty("id", rs.getLong(1));
-                    thr.addProperty("forum", rs.getLong("forum_id"));
-                    thr.addProperty("isDeleted", rs.getBoolean("isDeleted"));
-                    thr.addProperty("isClosed", rs.getBoolean("isClosed"));
-                    thr.addProperty("message", rs.getString("message"));
-                    thr.addProperty("slug", rs.getString("slug"));
-                    thr.addProperty("title", rs.getString("title"));
-                    thr.addProperty("date", rs.getString("td"));
+                    thr.addProperty(ID, rs.getLong(1));
+                    thr.addProperty(FORUM, rs.getLong("forum_id"));
+                    thr.addProperty(IS_DELETED, rs.getBoolean(IS_DELETED));
+                    thr.addProperty(IS_CLOSED, rs.getBoolean(IS_CLOSED));
+                    thr.addProperty(MESSAGE, rs.getString(MESSAGE));
+                    thr.addProperty(SLUG, rs.getString(SLUG));
+                    thr.addProperty(TITLE, rs.getString(TITLE));
+                    thr.addProperty(DATE, rs.getString("td"));
                     if (!finalUser)
-                        thr.addProperty("user", rs.getString("user_email"));
-                    else thr.add("user", getUserDetails(connection, rs.getString("user_email"), true));
+                        thr.addProperty(USER, rs.getString("user_email"));
+                    else thr.add(USER, getUserDetails(connection, rs.getString("user_email"), true));
                     if (!finalForum)
-                        thr.addProperty("forum", rs.getString("forum"));
-                    else thr.add("forum", getForumDetails(connection, rs.getString("forum")));
-                    thr.addProperty("dislikes", rs.getLong("dislikes"));
-                    thr.addProperty("likes", rs.getLong("likes"));
-                    thr.addProperty("points", rs.getLong("points"));
-                    thr.addProperty("posts", rs.getLong("posts"));
+                        thr.addProperty(FORUM, rs.getString(FORUM));
+                    else thr.add(FORUM, getForumDetails(connection, rs.getString(FORUM)));
+                    thr.addProperty(DISLIKES, rs.getLong(DISLIKES));
+                    thr.addProperty(LIKES, rs.getLong(LIKES));
+                    thr.addProperty(POINTS, rs.getLong(POINTS));
+                    thr.addProperty(POSTS, rs.getLong(POSTS));
                     result.add(thr);
                 }
             });
         } catch (SQLException e) {
+            Errors.unknownError(resp.getWriter());
             e.printStackTrace();
+            return;
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
         Errors.correct(resp.getWriter(), result);
     }
 }
