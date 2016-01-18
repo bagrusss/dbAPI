@@ -2,7 +2,7 @@ package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -29,7 +29,7 @@ public class Unsubscrabe extends BaseServlet {
         java.util.List<Object> sqlParams = new ArrayList<>(2);
         sqlParams.add(params.get(USER).getAsString());
         sqlParams.add(params.get(THREAD).getAsInt());
-        StringBuilder sql = new StringBuilder("DELETE FROM").append(Helper.TABLE_SUBSCRIPTIONS)
+        StringBuilder sql = new StringBuilder("DELETE FROM").append(DBHelper.TABLE_SUBSCRIPTIONS)
                 .append("WHERE `user_email` = ? AND `thread_id` = ?");
         try (Connection connection = mHelper.getConnection()) {
             mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams);

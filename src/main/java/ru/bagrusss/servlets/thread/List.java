@@ -2,7 +2,7 @@ package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonArray;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -30,7 +30,7 @@ public class List extends BaseServlet {
          */
         StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
                 .append("DATE_FORMAT(`date`, '%Y-%m-%d %H:%i:%s') dt FROM")
-                .append(Helper.TABLE_THREAD)
+                .append(DBHelper.TABLE_THREAD)
                 .append("WHERE ");
         String par = req.getParameter(USER);
         if (par != null) {

@@ -30,10 +30,10 @@ public class Details extends BaseServlet {
            */
         JsonObject result;
         try (Connection connection = mHelper.getConnection()) {
-            result = getUserDetails(connection, email, true);
+            result = getUserDetails(connection, email);
         } catch (SQLException e) {
             e.printStackTrace();
-            e.printStackTrace();
+            Errors.unknownError(resp.getWriter());
             return;
         }
         if (result == null)

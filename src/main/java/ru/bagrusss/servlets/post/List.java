@@ -2,7 +2,7 @@ package ru.bagrusss.servlets.post;
 
 import com.google.gson.JsonArray;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -32,7 +32,7 @@ public class List extends BaseServlet {
          */
         StringBuilder sql = new StringBuilder("SELECT *, `likes`-`dislikes` points, ")
                 .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd ")
-                .append("FROM").append(Helper.TABLE_POST)
+                .append("FROM").append(DBHelper.TABLE_POST)
                 .append("WHERE ");
         String par = req.getParameter("forum");
         if (par != null)

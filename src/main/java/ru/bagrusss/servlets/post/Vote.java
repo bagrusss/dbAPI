@@ -2,7 +2,7 @@ package ru.bagrusss.servlets.post;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -29,7 +29,7 @@ public class Vote extends BaseServlet {
         long id = params.get(POST).getAsLong();
         byte vt = params.get(VOTE).getAsByte();
         try (Connection connection = mHelper.getConnection()) {
-            params = vote(connection, Helper.TABLE_POST, id, vt);
+            params = vote(connection, DBHelper.TABLE_POST, id, vt);
         } catch (SQLException e) {
             Errors.unknownError(resp.getWriter());
             e.printStackTrace();

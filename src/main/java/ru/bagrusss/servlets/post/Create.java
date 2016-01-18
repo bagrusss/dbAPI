@@ -2,7 +2,7 @@ package ru.bagrusss.servlets.post;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -33,7 +33,7 @@ public class Create extends BaseServlet {
          */
 
         StringBuilder sql = new StringBuilder("INSERT IGNORE INTO")
-                .append(Helper.TABLE_POST)
+                .append(DBHelper.TABLE_POST)
                 .append("(`thread_id`,`message`, `user_email`, `forum_short_name`, `date`, ");
         List<Object> sqlParams = new ArrayList<>(11);
         long thread;

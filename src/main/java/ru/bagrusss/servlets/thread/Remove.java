@@ -2,7 +2,7 @@ package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -28,9 +28,9 @@ public class Remove extends BaseServlet {
         try (Connection connection = mHelper.getConnection()) {
             long id = params.get(THREAD).getAsLong();
             mHelper.runUpdate(connection,
-                    "UPDATE " + Helper.TABLE_THREAD + " SET posts=0, isDeleted=1 WHERE id=" + id);
+                    "UPDATE " + DBHelper.TABLE_THREAD + " SET posts=0, isDeleted=1 WHERE id=" + id);
             mHelper.runUpdate(connection,
-                    "UPDATE " + Helper.TABLE_POST + " SET isDeleted=1 WHERE thread_id=" + id);
+                    "UPDATE " + DBHelper.TABLE_POST + " SET isDeleted=1 WHERE thread_id=" + id);
         } catch (SQLException e) {
             Errors.unknownError(resp.getWriter());
             e.printStackTrace();

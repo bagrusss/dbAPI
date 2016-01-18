@@ -2,7 +2,7 @@ package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -30,7 +30,7 @@ public class Subscrabe extends BaseServlet {
         List<Object> sqlParams = new ArrayList<>(2);
         sqlParams.add(params.get(USER).getAsString());
         sqlParams.add(params.get(THREAD).getAsInt());
-        StringBuilder sql = new StringBuilder("INSERT IGNORE ").append(Helper.TABLE_SUBSCRIPTIONS)
+        StringBuilder sql = new StringBuilder("INSERT IGNORE ").append(DBHelper.TABLE_SUBSCRIPTIONS)
                 .append("VALUES (?, ?)");
         try (Connection connection = mHelper.getConnection()) {
             mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams);

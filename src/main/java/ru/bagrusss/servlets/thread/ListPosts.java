@@ -1,8 +1,8 @@
 package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonArray;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -18,7 +18,9 @@ import java.sql.SQLException;
 public class ListPosts extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/thread/listPosts/";
 
+
     @Override
+    @SuppressWarnings("Duplicates")
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         int thread = Integer.valueOf(req.getParameter(THREAD));
@@ -27,8 +29,7 @@ public class ListPosts extends BaseServlet {
          */
         StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
                 .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd ")
-                .append("FROM").append(Helper.TABLE_POST)
-                .append("WHERE `thread_id`=").append(thread);
+                .append("FROM").append(DBHelper.TABLE_POST).append("WHERE `thread_id`=").append(thread);
         String par = req.getParameter(SINCE);
         if (par != null)
             sql.append(" AND `date` >= \'").append(par).append("\' ");

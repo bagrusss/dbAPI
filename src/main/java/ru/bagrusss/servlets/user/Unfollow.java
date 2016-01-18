@@ -1,8 +1,8 @@
 package ru.bagrusss.servlets.user;
 
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -39,13 +39,13 @@ public class Unfollow extends BaseServlet {
         JsonObject res;
         try (Connection connection = mHelper.getConnection()) {
             StringBuilder sql = new StringBuilder("DELETE FROM")
-                    .append(Helper.TABLE_FOLLOWERS)
+                    .append(DBHelper.TABLE_FOLLOWERS)
                     .append("WHERE follower_email = ? AND following_email = ?");
             if (mHelper.runPreparedUpdate(connection, sql.toString(), sqlParams) == 0) {
                 Errors.notFound(resp.getWriter());
                 return;
             }
-            res = getUserDetails(connection, email, true);
+            res = getUserDetails(connection, email);
         } catch (SQLException e) {
             Errors.unknownError(resp.getWriter());
             e.printStackTrace();

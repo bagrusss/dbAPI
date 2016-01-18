@@ -2,7 +2,7 @@ package ru.bagrusss.servlets.user;
 
 import com.google.gson.JsonArray;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -27,7 +27,7 @@ public class ListPosts extends BaseServlet {
         String par = req.getParameter(USER);
         StringBuilder sql = new StringBuilder("SELECT *, DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd, ")
                 .append("likes-CAST(dislikes AS SIGNED) points FROM")
-                .append(Helper.TABLE_POST)
+                .append(DBHelper.TABLE_POST)
                 .append("WHERE `user_email` = \'")
                 .append(par).append("\' ");
         par = req.getParameter(SINCE);

@@ -2,8 +2,8 @@ package ru.bagrusss.servlets.forum;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -11,18 +11,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
  * Created by vladislav
  */
 
-@SuppressWarnings("OverlyComplexMethod")
+
 public class ListPosts extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/forum/listPosts/";
 
+
     @Override
+    @SuppressWarnings("OverlyComplexMethod")
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         /*
@@ -52,7 +53,7 @@ public class ListPosts extends BaseServlet {
         }
         StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
                 .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd ")
-                .append("FROM").append(Helper.TABLE_POST);
+                .append("FROM").append(DBHelper.TABLE_POST);
         String par = req.getParameter(FORUM);
         sql.append("WHERE `forum_short_name` = \'").append(par).append('\'');
         par = req.getParameter(SINCE);
@@ -74,37 +75,31 @@ public class ListPosts extends BaseServlet {
             final boolean finalUser = user;
             final boolean finalForum = forum;
             mHelper.runQuery(connection, sql.toString(), rs -> {
-                String threadSQL = "SELECT id, likes, dislikes, message, title, slug, user_email, forum, " +
-                        "isDeleted, isClosed, posts, likes-CAST(dislikes AS SIGNED) points, " +
-                        "DATE_FORMAT(`date`, '%Y-%m-%d %H:%i:%s') dt " +
-                        "FROM `Thread` WHERE `id`=?";
-                try (PreparedStatement threadSt = connection.prepareStatement(threadSQL)) {
-                    while (rs.next()) {
-                        JsonObject pst = new JsonObject();
-                        pst.addProperty(ID, rs.getLong(1));
-                        pst.addProperty(IS_APPROVED, rs.getBoolean(IS_APPROVED));
-                        pst.addProperty(IS_DELETED, rs.getBoolean(IS_DELETED));
-                        pst.addProperty(IS_EDITED, rs.getBoolean(IS_EDITED));
-                        pst.addProperty(IS_HIGHLIGHTED, rs.getBoolean(IS_HIGHLIGHTED));
-                        pst.addProperty(IS_SPAM, rs.getBoolean(IS_SPAM));
-                        pst.addProperty(MESSAGE, rs.getString(MESSAGE));
-                        if (finalThread)
-                            pst.add(THREAD, getThreadDetails(threadSt, rs.getLong("thread_id")));
-                        else pst.addProperty(THREAD, rs.getLong("thread_id"));
-                        pst.addProperty(DATE, rs.getString("pd"));
-                        if (!finalUser)
-                            pst.addProperty(USER, rs.getString("user_email"));
-                        else pst.add(USER, getUserDetails(connection, rs.getString("user_email"), true));
-                        if (!finalForum)
-                            pst.addProperty(FORUM, rs.getString("forum_short_name"));
-                        else pst.add(FORUM, getForumDetails(connection, rs.getString("forum_short_name")));
-                        pst.addProperty(DISLIKES, rs.getLong(DISLIKES));
-                        pst.addProperty(LIKES, rs.getLong(LIKES));
-                        pst.addProperty(POINTS, rs.getLong(POINTS));
-                        long parent = rs.getLong(PARENT);
-                        pst.addProperty(PARENT, parent == 0 ? null : parent);
-                        result.add(pst);
-                    }
+                while (rs.next()) {
+                    JsonObject pst = new JsonObject();
+                    pst.addProperty(ID, rs.getLong(1));
+                    pst.addProperty(IS_APPROVED, rs.getBoolean(IS_APPROVED));
+                    pst.addProperty(IS_DELETED, rs.getBoolean(IS_DELETED));
+                    pst.addProperty(IS_EDITED, rs.getBoolean(IS_EDITED));
+                    pst.addProperty(IS_HIGHLIGHTED, rs.getBoolean(IS_HIGHLIGHTED));
+                    pst.addProperty(IS_SPAM, rs.getBoolean(IS_SPAM));
+                    pst.addProperty(MESSAGE, rs.getString(MESSAGE));
+                    if (finalThread)
+                        pst.add(THREAD, getThreadDetails(connection, rs.getLong("thread_id")));
+                    else pst.addProperty(THREAD, rs.getLong("thread_id"));
+                    pst.addProperty(DATE, rs.getString("pd"));
+                    if (!finalUser)
+                        pst.addProperty(USER, rs.getString("user_email"));
+                    else pst.add(USER, getUserDetails(connection, rs.getString("user_email")));
+                    if (!finalForum)
+                        pst.addProperty(FORUM, rs.getString("forum_short_name"));
+                    else pst.add(FORUM, getForumDetails(connection, rs.getString("forum_short_name")));
+                    pst.addProperty(DISLIKES, rs.getLong(DISLIKES));
+                    pst.addProperty(LIKES, rs.getLong(LIKES));
+                    pst.addProperty(POINTS, rs.getLong(POINTS));
+                    long parent = rs.getLong(PARENT);
+                    pst.addProperty(PARENT, parent == 0 ? null : parent);
+                    result.add(pst);
                 }
             });
         } catch (SQLException e) {

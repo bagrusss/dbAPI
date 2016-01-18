@@ -1,8 +1,8 @@
 package ru.bagrusss.servlets.forum;
 
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -32,7 +32,7 @@ public class Create extends BaseServlet {
         String shortname = params.get(SHORT_NAME).getAsString();
         String user = params.get(USER).getAsString();
         sql.setLength(0);
-        sql.append("INSERT IGNORE INTO ").append(Helper.TABLE_FORUM)
+        sql.append("INSERT IGNORE INTO ").append(DBHelper.TABLE_FORUM)
                 .append("(`name`, `short_name`, `user_email`)")
                 .append(" VALUES (?,?,?)");
         sqlParams.add(name);
@@ -40,7 +40,7 @@ public class Create extends BaseServlet {
         sqlParams.add(user);
         long id = 0;
         try (Connection connection = mHelper.getConnection()) {
-            id = mHelper.runTypedQuery(connection, "SELECT `id` FROM " + Helper.TABLE_FORUM
+            id = mHelper.runTypedQuery(connection, "SELECT `id` FROM " + DBHelper.TABLE_FORUM
                             + "WHERE `short_name`= \'" + shortname + '\'',
                     rs -> rs.next() ? rs.getLong(1) :
                             mHelper.preparedInsertAndGetKeys(connection, sql.toString(), sqlParams));

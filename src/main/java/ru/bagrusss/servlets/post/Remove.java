@@ -2,7 +2,7 @@ package ru.bagrusss.servlets.post;
 
 import com.google.gson.JsonObject;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -28,12 +28,12 @@ public class Remove extends BaseServlet {
               UPDATE `Post` SET `isDeleted`=1 WHERE `id`=?;
          */
         try (Connection connection = mHelper.getConnection()) {
-            toggleField(connection, Helper.TABLE_POST, id, IS_DELETED, true);
+            toggleField(connection, DBHelper.TABLE_POST, id, IS_DELETED, true);
             mHelper.runQuery(connection, "SELECT `thread_id` FROM "
-                    + Helper.TABLE_POST + " Where id=" + id, rs -> {
+                    + DBHelper.TABLE_POST + " Where id=" + id, rs -> {
                 if (rs.next())
                     try (Statement st = connection.createStatement()) {
-                        st.executeUpdate("UPDATE " + Helper.TABLE_THREAD
+                        st.executeUpdate("UPDATE " + DBHelper.TABLE_THREAD
                                 + "SET `posts`=`posts`-1 WHERE `id`=" + rs.getLong(1));
                     }
             });

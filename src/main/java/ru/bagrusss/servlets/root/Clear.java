@@ -1,7 +1,7 @@
 package ru.bagrusss.servlets.root;
 
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -21,7 +21,7 @@ public class Clear extends BaseServlet {
         resp.setContentType("application/json; charset=utf8");
         mSQLBuilder.setLength(0);
         mSQLBuilder.append("DROP TABLE IF EXISTS");
-        for (String tbl : Helper.TABLES) {
+        for (String tbl : DBHelper.TABLES) {
             mSQLBuilder.append(tbl)
                     .append(',');
         }
@@ -29,7 +29,7 @@ public class Clear extends BaseServlet {
         try (Connection connection = mHelper.getConnection()) {
             mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
-            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_USER)
+            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(DBHelper.TABLE_USER)
                     .append("(`id` INT NOT NULL AUTO_INCREMENT, ")
                     .append("`username` VARCHAR(50) DEFAULT NULL, ")
                     .append("`name` VARCHAR(30), ")
@@ -38,12 +38,11 @@ public class Clear extends BaseServlet {
                     .append("`isAnonymous` TINYINT(1) DEFAULT false,")
                     .append("PRIMARY KEY(`email`), ")
                     .append("UNIQUE INDEX `Name_id` (`name`,`id`), ")
-                    .append("UNIQUE index `Name_email_id` (`name`, `email`, `id`), ")
                     .append("UNIQUE INDEX `id_UNIQUE` (`id`) ) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
-            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_FORUM)
+            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(DBHelper.TABLE_FORUM)
                     .append("(`id` INT NOT NULL AUTO_INCREMENT,")
                     .append("`name` VARCHAR(100),")
                     .append("`short_name` VARCHAR(100) NOT NULL,")
@@ -54,7 +53,7 @@ public class Clear extends BaseServlet {
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
-            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_THREAD)
+            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(DBHelper.TABLE_THREAD)
                     .append("(`id` INT NOT NULL AUTO_INCREMENT,")
                     .append("`date` TIMESTAMP NULL,")
                     .append("`isClosed` TINYINT(1) DEFAULT false,")
@@ -74,7 +73,7 @@ public class Clear extends BaseServlet {
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
-            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_POST)
+            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(DBHelper.TABLE_POST)
                     .append("(`id` INT NOT NULL AUTO_INCREMENT,")
                     .append("`date` TIMESTAMP NULL,")
                     .append("`isApproved` TINYINT(1) DEFAULT false,")
@@ -97,7 +96,7 @@ public class Clear extends BaseServlet {
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
-            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_FOLLOWERS)
+            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(DBHelper.TABLE_FOLLOWERS)
                     .append("(`follower_email` VARCHAR(50) NOT NULL,")
                     .append("`following_email` VARCHAR(50) NOT NULL,")
                     .append("PRIMARY KEY (`follower_email`, `following_email`), ")
@@ -105,7 +104,7 @@ public class Clear extends BaseServlet {
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");
             mHelper.runUpdate(connection, mSQLBuilder.toString());
             mSQLBuilder.setLength(0);
-            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(Helper.TABLE_SUBSCRIPTIONS)
+            mSQLBuilder.append("CREATE TABLE IF NOT EXISTS ").append(DBHelper.TABLE_SUBSCRIPTIONS)
                     .append("(`user_email` VARCHAR(50) NOT NULL,")
                     .append("`thread_id` INT NOT NULL,")
                     .append(" PRIMARY KEY (`user_email`, `thread_id`))")

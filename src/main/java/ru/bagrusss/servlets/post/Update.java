@@ -32,7 +32,7 @@ public class Update extends BaseServlet {
         sqlParams.add(id = params.get(POST).getAsLong());
         JsonObject result;
         try (Connection connection = mHelper.getConnection()) {
-            String sql = "UPDATE `Post` SET `message`=? WHERE id =?;";
+            String sql = "UPDATE `Post` SET `message`=? WHERE id =?";
             mHelper.runPreparedUpdate(connection, sql, sqlParams);
             result = getPostDetails(connection, id);
         } catch (SQLException e) {

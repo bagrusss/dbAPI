@@ -39,7 +39,7 @@ public class UpdateProfile extends BaseServlet {
                 Errors.notFound(resp.getWriter());
                 return;
             }
-            result = getUserDetails(connection, email, true);
+            result = getUserDetails(connection, email);
         } catch (SQLException e) {
             Errors.unknownError(resp.getWriter());
             e.printStackTrace();

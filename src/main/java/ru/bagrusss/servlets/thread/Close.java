@@ -1,8 +1,8 @@
 package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -29,7 +29,7 @@ public class Close extends BaseServlet {
          */
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
         try (Connection connection = mHelper.getConnection()) {
-            toggleField(connection, Helper.TABLE_THREAD,
+            toggleField(connection, DBHelper.TABLE_THREAD,
                     params.get(THREAD).getAsLong(), IS_CLOSED, true);
         } catch (SQLException e) {
             Errors.unknownError(resp.getWriter());

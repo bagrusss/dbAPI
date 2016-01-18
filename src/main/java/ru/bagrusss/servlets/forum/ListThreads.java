@@ -2,8 +2,8 @@ package ru.bagrusss.servlets.forum;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -20,7 +20,9 @@ import java.sql.SQLException;
 public class ListThreads extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/forum/listThreads/";
 
+
     @Override
+    @SuppressWarnings("OverlyComplexMethod")
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         /*
@@ -29,7 +31,6 @@ public class ListThreads extends BaseServlet {
         String[] related = req.getParameterValues(RELATED);
         boolean user = false;
         boolean forum = false;
-
         if (related != null) {
             for (String rel : related) {
                 switch (rel) {
@@ -47,7 +48,7 @@ public class ListThreads extends BaseServlet {
         }
         StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
                 .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') td ")
-                .append("FROM").append(Helper.TABLE_THREAD);
+                .append("FROM").append(DBHelper.TABLE_THREAD);
         String par = req.getParameter(FORUM);
         sql.append("WHERE `forum` = \'")
                 .append(par).append('\'');
@@ -81,7 +82,7 @@ public class ListThreads extends BaseServlet {
                     thr.addProperty(DATE, rs.getString("td"));
                     if (!finalUser)
                         thr.addProperty(USER, rs.getString("user_email"));
-                    else thr.add(USER, getUserDetails(connection, rs.getString("user_email"), true));
+                    else thr.add(USER, getUserDetails(connection, rs.getString("user_email")));
                     if (!finalForum)
                         thr.addProperty(FORUM, rs.getString(FORUM));
                     else thr.add(FORUM, getForumDetails(connection, rs.getString(FORUM)));

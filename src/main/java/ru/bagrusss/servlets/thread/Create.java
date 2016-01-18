@@ -1,8 +1,8 @@
 package ru.bagrusss.servlets.thread;
 
 import com.google.gson.JsonObject;
+import ru.bagrusss.helpers.DBHelper;
 import ru.bagrusss.helpers.Errors;
-import ru.bagrusss.helpers.Helper;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -30,7 +30,7 @@ public class Create extends BaseServlet {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?);
          */
         StringBuilder sql = new StringBuilder("INSERT IGNORE INTO")
-                .append(Helper.TABLE_THREAD)
+                .append(DBHelper.TABLE_THREAD)
                 .append("(`forum`, `title`, `slug`, `user_email`, `date`, `message`, `isClosed`, `isDeleted`) ")
                 .append("VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         JsonObject params = mGSON.fromJson(req.getReader(), JsonObject.class);
