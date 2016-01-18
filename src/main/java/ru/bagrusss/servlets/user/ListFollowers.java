@@ -24,11 +24,10 @@ public class ListFollowers extends BaseServlet {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         String parameter = req.getParameter(USER);
         StringBuilder sql = new StringBuilder("SELECT * FROM ")
-                .append(DBHelper.TABLE_USER).append("u INNER JOIN (")
+                .append(DBHelper.TABLE_USER).append("u WHERE email IN (")
                 .append("SELECT DISTINCT following_email FROM ")
                 .append(DBHelper.TABLE_FOLLOWERS).append("FORCE INDEX (PRIMARY) ")
-                .append("WHERE follower_email=\'").append(parameter).append("\') f ")
-                .append("ON f.following_email=u.email ");
+                .append("WHERE follower_email=\'").append(parameter).append("\') ");
         parameter = req.getParameter(SINCE_ID);
         if (parameter != null)
             sql.append(" AND u.id >= ").append(parameter);

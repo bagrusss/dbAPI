@@ -30,11 +30,10 @@ public class ListFollowing extends BaseServlet {
          */
         String parameter = req.getParameter(USER);
         StringBuilder sql = new StringBuilder("SELECT * FROM ")
-                .append(DBHelper.TABLE_USER).append("u INNER JOIN (")
+                .append(DBHelper.TABLE_USER).append("u WHERE email IN (")
                 .append("SELECT DISTINCT follower_email FROM ")
                 .append(DBHelper.TABLE_FOLLOWERS).append("FORCE INDEX (following_follower) ")
-                .append("WHERE following_email=\'").append(parameter).append("\') f ")
-                .append("ON f.follower_email=u.email ");
+                .append("WHERE following_email=\'").append(parameter).append("\') ");
         parameter = req.getParameter(SINCE_ID);
         if (parameter != null)
             sql.append(" AND u.id >= ").append(parameter);

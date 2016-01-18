@@ -24,11 +24,10 @@ public class ListUsers extends BaseServlet {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
         String param = req.getParameter(FORUM);
         StringBuilder sql = new StringBuilder("SELECT * FROM ")
-                .append(DBHelper.TABLE_USER).append("u INNER JOIN (")
+                .append(DBHelper.TABLE_USER).append("u WHERE `email` IN (")
                 .append("SELECT DISTINCT user_email FROM")
                 .append(DBHelper.TABLE_POST).append("FORCE INDEX (ForumShortName_UserEmail) ")
-                .append("WHERE forum_short_name=\'").append(param).append("\') p")
-                .append(" ON p.user_email=u.email");
+                .append("WHERE forum_short_name=\'").append(param).append("\') ");
         param = req.getParameter(SINCE_ID);
         if (param != null) {
             sql.append(" AND u.`id` >= ").append(param);

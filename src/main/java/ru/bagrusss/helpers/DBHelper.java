@@ -38,7 +38,7 @@ public final class DBHelper {
 
     public static final String POST_DETAILS_QUERY = "SELECT id, isApproved, isDeleted, isEdited, isHighlighted, isSpam, " +
             "message, likes, dislikes, thread_id, user_email, forum_short_name, parent, " +
-            "likes-CAST(dislikes AS SIGNED) pointsDATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd FROM" + TABLE_POST + "WHERE `id`=";
+            "likes-CAST(dislikes AS SIGNED) points, DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd FROM" + TABLE_POST + "WHERE `id`=";
 
     private static final String DB_HOST = "jdbc:mysql://localhost:3306/tp_db?characterEncoding=utf8&autoreconnect=true";
     private static final String DB_USER = "tp_user";
