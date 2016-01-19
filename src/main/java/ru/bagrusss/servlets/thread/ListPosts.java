@@ -60,9 +60,9 @@ public class ListPosts extends BaseServlet {
                             .append(DBHelper.TABLE_POST).append("WHERE thread_id=").append(thread)
                             .append(" AND math_path");
                     if (!order.equals("desc")) {
-                        limitCountSQL.append("<=");
-                    } else limitCountSQL.append(">=");
-                    limitCountSQL.append(limit);
+                        limitCountSQL.append('>');
+                    } else limitCountSQL.append('<');
+                    limitCountSQL.append(HEX_PREFIX + limit + 1);
                     try {
                         try (Connection connection = mHelper.getConnection()) {
                             limit = mHelper.runTypedQuery(connection, limitCountSQL.toString(), rs -> {

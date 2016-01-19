@@ -67,6 +67,7 @@ public class BaseServlet extends HttpServlet {
     protected static final String FLAT = "flat";
     protected static final String TREE = "tree";
     protected static final String PARENT_TREE = "parent_tree";
+    protected static final int HEX_PREFIX = 0x8000;
     protected static final Logger LOG = Logger.getLogger(BaseServlet.class.getName());
     protected static final Gson mGSON = new Gson();
     protected static final DBHelper mHelper = DBHelper.getInstance();

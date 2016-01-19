@@ -21,9 +21,9 @@ import java.util.List;
 
 public class Create extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/post/create/";
-    public static final int HEX_PREFIX = 0x8000;
 
-    @SuppressWarnings("ConstantConditions")
+
+    @SuppressWarnings({"ConstantConditions", "OverlyComplexMethod"})
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
