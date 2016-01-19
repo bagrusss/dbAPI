@@ -37,27 +37,51 @@ public class ListPosts extends BaseServlet {
         String sort = req.getParameter(SORT);
         String order = req.getParameter(ORDER);
         if (order == null)
-            order = "";
+            order = "desc";
         if (sort == null)
             sort = FLAT;
+        par = req.getParameter(LIMIT);
         switch (sort) {
             case FLAT:
                 sql.append(" ORDER BY `date` ").append(order);
+                if (par != null)
+                    sql.append(" LIMIT ").append(par);
                 break;
             case TREE:
                 sql.append(" ORDER BY `math_path` ").append(order);
-
+                if (par != null)
+                    sql.append(" LIMIT ").append(par);
                 break;
             case PARENT_TREE:
                 sql.append(" ORDER BY `math_path` ").append(order);
+                if (par != null) {
+                    int limit = Integer.valueOf(par);
+                    StringBuilder limitCountSQL = new StringBuilder("SELECT count(*) FROM")
+                            .append(DBHelper.TABLE_POST).append("WHERE thread_id=").append(thread)
+                            .append(" AND math_path");
+                    if (!order.equals("desc")) {
+                        limitCountSQL.append("<=");
+                    } else limitCountSQL.append(">=");
+                    limitCountSQL.append(limit);
+                    try {
+                        try (Connection connection = mHelper.getConnection()) {
+                            limit = mHelper.runTypedQuery(connection, limitCountSQL.toString(), rs -> {
+                                rs.next();
+                                return rs.getInt(1);
+                            });
+                        }
+                        sql.append(" LIMIT ").append(limit);
+                    } catch (SQLException e) {
+                        Errors.unknownError(resp.getWriter());
+                        e.printStackTrace();
+                        return;
+                    }
+                }
                 break;
             default:
                 Errors.incorrecRequest(resp.getWriter());
                 return;
         }
-        par = req.getParameter(LIMIT);
-        if (par != null)
-            sql.append(" LIMIT ").append(par);
         JsonArray postsList = new JsonArray();
         try (Connection connection = mHelper.getConnection()) {
             mHelper.runQuery(connection, sql.toString(), rs -> {
