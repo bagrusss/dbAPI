@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  */
 
 
-@SuppressWarnings({"ConstantNamingConvention", "SqlNoDataSourceInspection", "SqlResolve"})
+@SuppressWarnings("all")
 public class BaseServlet extends HttpServlet {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
@@ -63,10 +63,14 @@ public class BaseServlet extends HttpServlet {
     protected static final String FOLLOWER = "follower";
     protected static final String FOLLOWER_EMAIL = "follower_email";
     protected static final String FOLLOWING_EMAIL = "following_email";
-
+    protected static final String SORT = "sort";
+    protected static final String FLAT = "flat";
+    protected static final String TREE = "tree";
+    protected static final String PARENT_TREE = "parent_tree";
     protected static final Logger LOG = Logger.getLogger(BaseServlet.class.getName());
     protected static final Gson mGSON = new Gson();
     protected static final DBHelper mHelper = DBHelper.getInstance();
+
 
     private JsonObject parseUserWithoutEmail(ResultSet rs, JsonObject result) throws SQLException {
         result.addProperty(ID, rs.getInt(1));
@@ -145,7 +149,7 @@ public class BaseServlet extends HttpServlet {
     /**
      * Для списков
      *
-     * @param pss   PreparedStaement [] for followers, follower, subscriptions, user
+     * @param pss   PreparedStaement [] for followers, following, subscriptions, user
      * @param email for user with this email
      * @return JsonObject with addition information
      * @throws SQLException

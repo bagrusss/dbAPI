@@ -1,8 +1,8 @@
 package ru.bagrusss.servlets.post;
 
 import com.google.gson.JsonObject;
-import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.helpers.DBHelper;
+import ru.bagrusss.helpers.Errors;
 import ru.bagrusss.servlets.BaseServlet;
 
 import javax.servlet.ServletException;
@@ -21,7 +21,9 @@ import java.util.List;
 
 public class Create extends BaseServlet {
     public static final String URL = BaseServlet.BASE_URL + "/post/create/";
+    public static final int HEX_PREFIX = 0x8000;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding(DEFAULT_ENCODING);
@@ -43,9 +45,10 @@ public class Create extends BaseServlet {
         sqlParams.add(params.get(FORUM).getAsString());
         sqlParams.add(params.get(DATE).getAsString());
         byte count = 5;
+        long parent = 0;
         if (params.has(PARENT)) {
             try {
-                sqlParams.add(params.get(PARENT).getAsLong());
+                sqlParams.add(parent = params.get(PARENT).getAsLong());
             } catch (UnsupportedOperationException e) {
                 sqlParams.add(null);
             }
@@ -75,15 +78,65 @@ public class Create extends BaseServlet {
         boolean isDeleted = false;
         if (params.has(IS_DELETED)) {
             sqlParams.add(isDeleted = params.get(IS_DELETED).getAsBoolean());
-            sql.append("`isDeleted`");
+            sql.append("`isDeleted`, ");
             ++count;
         }
-        sql.append(") VALUES (");
-        for (byte i = 0; i < count - 1; ++i) {
-            sql.append("?, ");
-        }
-        sql.append("? )");
         try (Connection connection = mHelper.getConnection()) {
+            StringBuilder path = new StringBuilder("SELECT MAX(math_path) FROM ")
+                    .append(DBHelper.TABLE_POST).append("WHERE thread_id=")
+                    .append(thread).append(" AND parent=");
+            byte situation = 0;
+            if (parent == 0)
+                path.append("NULL");
+            else {
+                path.append(parent);
+                situation |= 1;
+            }
+            String mathPAth = mHelper.runTypedQuery(connection, path.toString(), rs -> {
+                if (rs.next())
+                    return rs.getString(1);
+                return null;
+            });
+            path.setLength(0);
+            situation <<= 1;
+            if (mathPAth != null)
+                situation |= 1;
+            String parentPath;
+            switch (situation) {
+                //нет родителя, нет постов - первый пост, начальный id в m_path
+                case 0b00:
+                    path.append(Integer.toHexString(HEX_PREFIX));
+                    break;
+                //нет родителя, есть посты - взять максимальный, увеличить id
+                case 0b01:
+                    path.append(Integer.toHexString(HEX_PREFIX | (Integer.valueOf(mathPAth) + 1)));
+                    break;
+                //есть родитель, нет постов - взять id родителя, создать id
+                case 0b10:
+                    path.append("SELECT math_path FROM").append(DBHelper.TABLE_POST)
+                            .append(" WHERE id=").append(parent);
+                    parentPath = mHelper.runTypedQuery(connection, path.toString(),
+                            rs -> {
+                                rs.next();
+                                return rs.getString(1);
+                            });
+                    path.setLength(0);
+                    path.append(parentPath).append('.').append(Integer.toHexString(HEX_PREFIX));
+                    break;
+                //есть родитель, есть посты - взять m_path, увеличить на 1 конец
+                default:
+                    String maxPAth = mathPAth.substring(mathPAth.length() - 5, mathPAth.length() - 1);
+                    path.append(mathPAth.substring(0, mathPAth.length() - 6))
+                            .append(Integer.valueOf(maxPAth) + 1);
+                    break;
+            }
+            count++;
+            sql.append(" math_path").append(") VALUES (");
+            for (byte i = 0; i < count - 1; ++i) {
+                sql.append("?, ");
+            }
+            sqlParams.add(path.toString());
+            sql.append("? )");
             mHelper.preparedInsertAndGetKeys(connection, sql.toString(), sqlParams, gk -> {
                 ResultSetMetaData metaData = gk.getMetaData();
                 int columns = metaData.getColumnCount();

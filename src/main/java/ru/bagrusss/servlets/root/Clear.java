@@ -87,10 +87,13 @@ public class Clear extends BaseServlet {
                     .append("`thread_id` INT NOT NULL,")
                     .append("`user_email` VARCHAR(50) NOT NULL,")
                     .append("`forum_short_name` VARCHAR(100),")
+                    .append("`math_path` VARCHAR(100),") //вложенность 20
                     .append("`parent` INT DEFAULT NULL,")
                     .append("PRIMARY KEY (`id`), ")
                     .append("INDEX `UserEmail_Date` (`user_email`, `date`), ") //для user/listPosts
                     .append("INDEX `ThreadId_Date` (`thread_id`, `date`), ") //для post/List
+                    .append("INDEX `ThreadId_Parent` (`thread_id`, `parent`), ")
+                    .append("INDEX `ThreadId_MathPath` (`thread_id`, `math_path`), ")
                     .append("INDEX `ForumShortName_Date` (`forum_short_name`, `date`), ") //для post/List
                     .append("INDEX `ForumShortName_UserEmail` (`forum_short_name`, `user_email`)) ")
                     .append("DEFAULT CHARACTER SET = utf8, ENGINE = InnoDB");

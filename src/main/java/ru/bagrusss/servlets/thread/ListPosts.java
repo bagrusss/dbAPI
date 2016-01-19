@@ -27,15 +27,34 @@ public class ListPosts extends BaseServlet {
         /*
             SELECT *, likes-dislikes AS points FROM `Post` WHERE `thread_id` = ?
          */
-        StringBuilder sql = new StringBuilder("SELECT *, likes-CAST(dislikes AS SIGNED) points, ")
-                .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd ")
+        StringBuilder sql = new StringBuilder("SELECT id, isApproved, isDeleted, isEdited, isHighlighted, isSpam, ")
+                .append("message, likes, dislikes, thread_id, user_email, forum_short_name, parent, ")
+                .append("DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') pd,  likes-CAST(dislikes AS SIGNED) points ")
                 .append("FROM").append(DBHelper.TABLE_POST).append("WHERE `thread_id`=").append(thread);
         String par = req.getParameter(SINCE);
         if (par != null)
             sql.append(" AND `date` >= \'").append(par).append("\' ");
-        par = req.getParameter(ORDER);
-        if (par != null)
-            sql.append(" ORDER BY `date` ").append(par);
+        String sort = req.getParameter(SORT);
+        String order = req.getParameter(ORDER);
+        if (order == null)
+            order = "";
+        if (sort == null)
+            sort = FLAT;
+        switch (sort) {
+            case FLAT:
+                sql.append(" ORDER BY `date` ").append(order);
+                break;
+            case TREE:
+                sql.append(" ORDER BY `math_path` ").append(order);
+
+                break;
+            case PARENT_TREE:
+                sql.append(" ORDER BY `math_path` ").append(order);
+                break;
+            default:
+                Errors.incorrecRequest(resp.getWriter());
+                return;
+        }
         par = req.getParameter(LIMIT);
         if (par != null)
             sql.append(" LIMIT ").append(par);
